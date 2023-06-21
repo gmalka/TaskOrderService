@@ -24,7 +24,7 @@ type UserWithRole struct {
 	Role string
 }
 
-type UserInfoWithRoleruct struct {
+type UserInfoWithRole struct {
 	Info UserInfo
 	Role string
 }

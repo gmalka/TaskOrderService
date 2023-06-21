@@ -27,8 +27,8 @@ func (p postgresService) Create(user model.UserWithRole) error {
 	return nil
 }
 
-func (p postgresService) GetByUsername(username string) (model.UserInfoWithRoleruct, error) {
-	var userInfo model.UserInfoWithRoleruct
+func (p postgresService) GetByUsername(username string) (model.UserInfoWithRole, error) {
+	var userInfo model.UserInfoWithRole
 
 	err := p.db.QueryRow("SELECT firstname,lastname,surname,group,balance,role FROM users WHERE username=$1", username).Scan(&userInfo.Info.Firstname,
 		&userInfo.Info.Lastname, &userInfo.Info.Surname, &userInfo.Info.Group, &userInfo.Info.Balance, &userInfo.Role)
@@ -37,6 +37,14 @@ func (p postgresService) GetByUsername(username string) (model.UserInfoWithRoler
 	}
 
 	return userInfo, nil
+}
+
+func (p postgresService) GetPassword(username string) (string, error) {
+	var result string
+
+	err := p.db.QueryRow("SELECT password FROM users WHERE username=$1", username).Scan(&result)
+
+	return result, err
 }
 
 func (p postgresService) GetAllUsers() ([]string, error) {
