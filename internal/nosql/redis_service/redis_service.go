@@ -9,12 +9,6 @@ import (
 	"github.com/go-redis/redis"
 )
 
-const (
-	// key should be like `username:key`
-	ACCESS = "access"
-	REFRESH = "refresh"
-)
-
 type redisService struct {
 	cli *redis.Client
 }
@@ -23,7 +17,7 @@ func NewRedisService (cli *redis.Client) nosql.NoSqlService {
 	return redisService{cli: cli}
 }
 
-func (r redisService) Get(key string, ttl int) (string, error) {
+func (r redisService) Get(key string) (string, error) {
 	result := r.cli.Get(key)
 
 	if result == nil {

@@ -27,16 +27,17 @@ func (p postgresService) Create(user model.UserWithRole) error {
 	return nil
 }
 
-func (p postgresService) GetByUsername(username string) (model.UserInfoWithRole, error) {
-	var userInfo model.UserInfoWithRole
+func (p postgresService) GetByUsername(username string) (model.UserWithRole, error) {
+	var user model.UserWithRole
 
-	err := p.db.QueryRow("SELECT firstname,lastname,surname,group,balance,role FROM users WHERE username=$1", username).Scan(&userInfo.Info.Firstname,
-		&userInfo.Info.Lastname, &userInfo.Info.Surname, &userInfo.Info.Group, &userInfo.Info.Balance, &userInfo.Role)
+	err := p.db.QueryRow("SELECT password,firstname,lastname,surname,group,balance,role FROM users WHERE username=$1", username).Scan(&user.User.Password,&user.User.Info.Firstname,
+		&user.User.Info.Lastname, &user.User.Info.Surname, &user.User.Info.Group, &user.User.Info.Balance, &user.Role)
 	if err != nil {
-		return userInfo, fmt.Errorf("cant get info about user: %s", username)
+		return user, fmt.Errorf("cant get info about user: %s", username)
 	}
 
-	return userInfo, nil
+	user.User.Username = username
+	return user, nil
 }
 
 func (p postgresService) GetPassword(username string) (string, error) {

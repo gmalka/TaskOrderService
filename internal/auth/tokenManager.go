@@ -19,14 +19,23 @@ type authService struct {
 }
 
 type TokenManager interface {
-	CreateToken(role, username string, ttl time.Duration, kind int) (string, error)
+	CreateToken(userinfo UserInfo, ttl time.Duration, kind int) (string, error)
 	ParseToken(inputToken string, kind int) (UserClaims, error)
 }
 
 type UserClaims struct {
-	Username string `json:"username"`
-	Role     string `json:"role"`
+	Username  string `json:"username"`
+	Role      string `json:"role"`
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
 	jwt.RegisteredClaims
+}
+
+type UserInfo struct {
+	Username  string `json:"username"`
+	Role      string `json:"role"`
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
 }
 
 func (u authService) ParseToken(inputToken string, kind int) (UserClaims, error) {
@@ -61,18 +70,21 @@ func (u authService) ParseToken(inputToken string, kind int) (UserClaims, error)
 		return UserClaims{}, fmt.Errorf("error get user claims from token")
 	}
 
-
 	return UserClaims{
-		Username: claims["username"].(string),
-		Role: claims["role"].(string),
+		Username:         claims["username"].(string),
+		Role:             claims["role"].(string),
+		Firstname:        claims["firstname"].(string),
+		Lastname:         claims["lastname"].(string),
 		RegisteredClaims: jwt.RegisteredClaims{},
-	 }, nil
+	}, nil
 }
 
-func (u authService) CreateToken(role, username string, ttl time.Duration, kind int) (string, error) {
+func (u authService) CreateToken(userinfo UserInfo, ttl time.Duration, kind int) (string, error) {
 	claims := UserClaims{
-		Username:         username,
-		Role:             role,
+		Username:         userinfo.Username,
+		Role:             userinfo.Role,
+		Firstname:        userinfo.Firstname,
+		Lastname:         userinfo.Lastname,
 		RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl))},
 	}
 
