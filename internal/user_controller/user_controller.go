@@ -24,6 +24,15 @@ func NewUserController(nosql nosql.NoSqlService, db database.DatabaseService, to
 	}
 }
 
-func (u userController) RegisterUser(user model.User) {
+func (u userController) GetUser(userauth model.UserAuth) (model.UserWithRole, error) {
+	
+}
 
+func (u userController) RegisterUser(user model.User) error {
+	err := u.db.Create(model.UserWithRole{
+		User: user,
+		Role: "user",
+	})
+
+	return err
 }
