@@ -41,6 +41,13 @@ type TokenManager interface {
 	ParseToken(inputToken string, kind int) (UserClaims, error)
 }
 
+func NewAuthService(accessSecret, refreshSecret string) TokenManager {
+	return authService{
+		accessSecret:  []byte(accessSecret),
+		refreshSecret: []byte(refreshSecret),
+	}
+}
+
 func (u authService) ParseToken(inputToken string, kind int) (UserClaims, error) {
 	token, err := jwt.Parse(inputToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

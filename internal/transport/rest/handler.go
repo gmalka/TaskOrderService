@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"userService/internal/auth"
-	"userService/internal/model"
 	usercontroller "userService/internal/user_controller"
 
 	"github.com/go-chi/chi/v5"
@@ -37,14 +36,17 @@ func (h Handler) InitRouter() http.Handler {
 		r.Use(h.checkAccess)
 		r.Get("/", h.getInfo)
 		r.Put("/", h.updateUser)
-		r.Get("/orders")
-		r.Post("/orders")
-	})
 
-	r.Route("/orders", func(r chi.Router) {
-		r.Use(h.checkAccess)
-		r.Put("/")
-		r.Post("/")
+		r.Route("/orders", func(r chi.Router) {
+			r.Use(h.checkAccess)
+			r.Get("/{page:^(|[1-9][0-9]*)$}", h.getOrdersOfUser)
+			r.Post("/", h.tryToOrderTask)
+
+			r.Get("/", h.getAllTasks)
+			r.Put("/", h.updateTask)
+			r.Post("/", h.createTask)
+		})
+
 	})
 
 	return r

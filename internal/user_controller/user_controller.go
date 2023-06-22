@@ -19,12 +19,12 @@ type Controller interface {
 }
 
 type userController struct {
-	db    database.DatabaseService
+	db database.DatabaseService
 }
 
 func NewUserController(db database.DatabaseService) Controller {
 	return userController{
-		db:    db,
+		db: db,
 	}
 }
 
@@ -46,4 +46,8 @@ func (u userController) GetUser(username string) (model.UserWithRole, error) {
 
 func (u userController) DeleteUser(username string) error {
 	return u.db.Delete(username)
+}
+
+func (u userController) GetOrdersOfUser(username string, number int) ([]model.Order, error) {
+	return u.db.GetOrdersOfUser(username, number)
 }

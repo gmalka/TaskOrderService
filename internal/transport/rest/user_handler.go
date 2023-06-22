@@ -6,24 +6,19 @@ import (
 	"net/http"
 	"userService/internal/auth"
 	"userService/internal/model"
-
-	"github.com/go-chi/chi"
 )
 
+func (h Handler) tryToOrderTask(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h Handler) getOrdersOfUser(w http.ResponseWriter, r *http.Request) {
+	//username := chi.URLParam(r, "username")
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func (h Handler) updateUser(w http.ResponseWriter, r *http.Request) {
-	username := chi.URLParam(r, "username")
-
-	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
-	if !ok {
-		http.Error(w, "some token error", http.StatusBadRequest)
-		return
-	}
-
-	if username != u.Username {
-		http.Error(w, "invalid resource", http.StatusBadRequest)
-		return
-	}
-
 	var user model.UserForUpdate
 
 	b, err := io.ReadAll(r.Body)
@@ -48,16 +43,9 @@ func (h Handler) updateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handler) getInfo(w http.ResponseWriter, r *http.Request) {
-	username := chi.URLParam(r, "username")
-
 	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
 	if !ok {
 		http.Error(w, "some token error", http.StatusBadRequest)
-		return
-	}
-
-	if username != u.Username {
-		http.Error(w, "invalid resource", http.StatusBadRequest)
 		return
 	}
 

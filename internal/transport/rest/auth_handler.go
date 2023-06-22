@@ -8,6 +8,8 @@ import (
 	"strings"
 	"userService/internal/auth"
 	"userService/internal/model"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
@@ -37,10 +39,10 @@ func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	access, refresh, err := generateTokens(h.tokenManager, auth.UserInfo{
-		Username: user.User.Username,
-		Role: user.Role,
+		Username:  user.User.Username,
+		Role:      user.Role,
 		Firstname: user.User.Info.Firstname,
-		Lastname: user.User.Info.Lastname,
+		Lastname:  user.User.Info.Lastname,
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -62,10 +64,10 @@ func (h Handler) refresh(w http.ResponseWriter, r *http.Request) {
 	}
 
 	access, refresh, err := generateTokens(h.tokenManager, auth.UserInfo{
-		Username: u.Username,
-		Role: u.Role,
+		Username:  u.Username,
+		Role:      u.Role,
 		Firstname: u.Firstname,
-		Lastname: u.Lastname,
+		Lastname:  u.Lastname,
 	})
 	if err != nil {
 		http.Error(w, "token generate error", http.StatusBadRequest)
@@ -124,6 +126,12 @@ func (h Handler) checkAccess(next http.Handler) http.Handler {
 		u, err := h.tokenManager.ParseToken(tokenParts[1], auth.AccessToken)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		username := chi.URLParam(r, "username")
+		if username != u.Username {
+			http.Error(w, "invalid resource", http.StatusBadRequest)
 			return
 		}
 

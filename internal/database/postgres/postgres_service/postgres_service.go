@@ -13,6 +13,10 @@ type postgresService struct {
 	db *sqlx.DB
 }
 
+const (
+	ORDERS_PER_ROW=10
+)
+
 func NewPostgresService(db *sqlx.DB) database.DatabaseService {
 	return postgresService{db: db}
 }
@@ -80,4 +84,33 @@ func (p postgresService) Delete(username string) error {
 		return fmt.Errorf("cant delete user: %s", username)
 	}
 	return err
+}
+
+
+func (p postgresService) GetOrdersOfUser(username string, number int) ([]model.Order, error) {
+	var orders []model.Order
+
+	if number > 0 {
+		number--
+	}
+
+	rows, err := p.db.Query("SELECT orders.count, orders.heights, orders.price FROM user_orders LEFT JOIN orders ON user_orders.orderId=orders.id WHERE username=$1 LIMIT $2, $3", username, ORDERS_PER_ROW, number * 10)
+	if err != nil {
+		log.Println("Error geting user orders ", username)
+		return nil, fmt.Errorf("cant get users orders: %s", username)
+	}
+
+	for rows.Next() {
+		var order model.Order
+
+		err = rows.Scan(&order)
+		if err != nil {
+			log.Println("Error while scanning users order ", username)
+			return nil, fmt.Errorf("cant get users orders: %s", username)
+		}
+
+		orders = append(orders, order)
+	}
+
+	return orders, nil
 }
