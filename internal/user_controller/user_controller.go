@@ -14,7 +14,7 @@ type Controller interface {
 	CreateUser(user model.User) error
 	GetAllUsernames() ([]string, error)
 	GetUser(username string) (model.UserWithRole, error)
-	GetUserForUpdate(username string) (int, func() error, func() error, error)
+	TryToBuyTask(username string, price int) (bool, error)
 	DeleteUser(username string) error
 	UpdateUser(user model.UserForUpdate) error
 }
@@ -45,14 +45,10 @@ func (u userController) GetUser(username string) (model.UserWithRole, error) {
 	return u.db.GetByUsername(username)
 }
 
-func (u userController) GetUserForUpdate(username string) (int, func() error, func() error, error) {
-	return u.db.GetUserForUpdate(username)
+func (u userController) TryToBuyTask(username string, price int) (bool, error) {
+	return u.db.TryToBuyTask(username, price)
 }
 
 func (u userController) DeleteUser(username string) error {
 	return u.db.Delete(username)
-}
-
-func (u userController) GetOrdersOfUser(username string, number int) ([]model.Order, error) {
-	return u.db.GetOrdersOfUser(username, number)
 }

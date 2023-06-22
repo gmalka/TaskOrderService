@@ -12,39 +12,36 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-type OrderRequest struct {
-	Id      int `json:"id"`
-	Balance int `json:"balance"`
-}
-
 func (h Handler) tryToOrderTask(w http.ResponseWriter, r *http.Request) {
 	username := chi.URLParam(r, "username")
+	taskId := r.Header.Get("taskId")
 
-	h.controller.GetUserForUpdate(username)
-
-	b, err := io.ReadAll(r.Body)
+	id, err := strconv.Atoi(taskId)
 	if err != nil {
-		http.Error(w, "data parsing error", http.StatusBadRequest)
+		http.Error(w, "incorrect task Id", http.StatusBadRequest)
 		return
 	}
 
-	err = json.Unmarshal(b, &order)
+	order, err := h.grpcCli.GetTask(id)
 	if err != nil {
-		http.Error(w, "data parsing error", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	balance, ok, err := h.grpcCli.TryOrderTask(username, order.Id, order.Balance)
+	ok, err := h.controller.TryToBuyTask(username, order.Price)
 	if !ok {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	h.grpcCli.BuyTaskAnswer(username, order.Id)
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("success ordering"))
+	w.Write([]byte("Answer: "))
+	w.Write([]byte(strconv.Itoa(order.Answer)))
 }
 
-func (h Handler) getOrdersForUser(w http.ResponseWriter, r *http.Request) {
+func (h Handler) getUsersOrders(w http.ResponseWriter, r *http.Request) {
 	username := chi.URLParam(r, "username")
 	page := chi.URLParam(r, "page")
 

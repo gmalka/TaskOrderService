@@ -22,7 +22,7 @@ func NewPostgresService(db *sqlx.DB) database.DatabaseService {
 	return postgresService{db: db}
 }
 
-func (p postgresService) TryToBuyTask(username string, price int, orderId int) (bool, error) {
+func (p postgresService) TryToBuyTask(username string, price int) (bool, error) {
 	var balance int
 
 	tx, err := p.db.Beginx()
@@ -44,8 +44,6 @@ func (p postgresService) TryToBuyTask(username string, price int, orderId int) (
 	if err != nil {
 		return false, err
 	}
-
-	tx.Exec("INSERT INTO users(username,orderid) VALUES($1,$2)", username, orderId)
 
 	return true, nil
 }
@@ -116,8 +114,8 @@ func (p postgresService) Delete(username string) error {
 	return err
 }
 
-func (p postgresService) GetOrdersOfUser(username string, number int) ([]model.Order, error) {
-	var orders []model.Order
+func (p postgresService) GetOrdersOfUser(username string, number int) ([]model.Task, error) {
+	var orders []model.Task
 
 	if number > 0 {
 		number--
@@ -130,7 +128,7 @@ func (p postgresService) GetOrdersOfUser(username string, number int) ([]model.O
 	}
 
 	for rows.Next() {
-		var order model.Order
+		var order model.Task
 
 		err = rows.Scan(&order)
 		if err != nil {

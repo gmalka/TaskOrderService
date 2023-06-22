@@ -44,7 +44,7 @@ func (h Handler) InitRouter() http.Handler {
 
 		r.Route("/orders", func(r chi.Router) {
 			r.Use(h.checkAccess)
-			r.Get("/{page:^(|[1-9][0-9]*)$}", h.getOrdersForUser)
+			r.Get("/{page:^(|[1-9][0-9]*)$}", h.getUsersOrders)
 			r.Post("/", h.tryToOrderTask)
 
 			r.Get("/", h.getAllTasks)

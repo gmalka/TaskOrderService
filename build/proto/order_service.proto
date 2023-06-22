@@ -7,10 +7,10 @@ package proto;
 service TaskOrderService {
     rpc getOrdersForUser(UserOrders) returns (stream Task);
     rpc getAllTasks(None) returns (stream Task);
-    rpc getTask(OrderTask) returns (Price);
+    rpc getTask(OrderTask) returns (TaskOrderInfo);
     rpc buyTaskAnswer(UserBuyAnswer) returns (None);
-    rpc createNewTask(Task) returns (Status);
-    rpc updatePriceOfTask(TaskForUpdate) returns (Status);
+    rpc createNewTask(Task) returns (None);
+    rpc updatePriceOfTask(TaskForUpdate) returns (None);
 }
 
 message None {}
@@ -20,16 +20,6 @@ message UserBuyAnswer {
     int64 id = 2;
 }
 
-message Price {
-    int64 price = 1;
-    int64 answer = 2;
-}
-
-message Status {
-    bool success = 1;
-    string error = 2;
-}
-
 message TaskForUpdate {
     int64 id = 1;
     int64 price = 2;
@@ -37,6 +27,11 @@ message TaskForUpdate {
 
 message OrderTask {
     int64 id = 1;
+}
+
+message TaskOrderInfo {
+    int64 answer = 1;
+    int64 price = 2;
 }
 
 message Task {

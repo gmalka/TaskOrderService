@@ -33,10 +33,10 @@ const (
 type TaskOrderServiceClient interface {
 	GetOrdersForUser(ctx context.Context, in *UserOrders, opts ...grpc.CallOption) (TaskOrderService_GetOrdersForUserClient, error)
 	GetAllTasks(ctx context.Context, in *None, opts ...grpc.CallOption) (TaskOrderService_GetAllTasksClient, error)
-	GetTask(ctx context.Context, in *OrderTask, opts ...grpc.CallOption) (*Price, error)
+	GetTask(ctx context.Context, in *OrderTask, opts ...grpc.CallOption) (*TaskOrderInfo, error)
 	BuyTaskAnswer(ctx context.Context, in *UserBuyAnswer, opts ...grpc.CallOption) (*None, error)
-	CreateNewTask(ctx context.Context, in *Task, opts ...grpc.CallOption) (*Status, error)
-	UpdatePriceOfTask(ctx context.Context, in *TaskForUpdate, opts ...grpc.CallOption) (*Status, error)
+	CreateNewTask(ctx context.Context, in *Task, opts ...grpc.CallOption) (*None, error)
+	UpdatePriceOfTask(ctx context.Context, in *TaskForUpdate, opts ...grpc.CallOption) (*None, error)
 }
 
 type taskOrderServiceClient struct {
@@ -111,8 +111,8 @@ func (x *taskOrderServiceGetAllTasksClient) Recv() (*Task, error) {
 	return m, nil
 }
 
-func (c *taskOrderServiceClient) GetTask(ctx context.Context, in *OrderTask, opts ...grpc.CallOption) (*Price, error) {
-	out := new(Price)
+func (c *taskOrderServiceClient) GetTask(ctx context.Context, in *OrderTask, opts ...grpc.CallOption) (*TaskOrderInfo, error) {
+	out := new(TaskOrderInfo)
 	err := c.cc.Invoke(ctx, TaskOrderService_GetTask_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -129,8 +129,8 @@ func (c *taskOrderServiceClient) BuyTaskAnswer(ctx context.Context, in *UserBuyA
 	return out, nil
 }
 
-func (c *taskOrderServiceClient) CreateNewTask(ctx context.Context, in *Task, opts ...grpc.CallOption) (*Status, error) {
-	out := new(Status)
+func (c *taskOrderServiceClient) CreateNewTask(ctx context.Context, in *Task, opts ...grpc.CallOption) (*None, error) {
+	out := new(None)
 	err := c.cc.Invoke(ctx, TaskOrderService_CreateNewTask_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -138,8 +138,8 @@ func (c *taskOrderServiceClient) CreateNewTask(ctx context.Context, in *Task, op
 	return out, nil
 }
 
-func (c *taskOrderServiceClient) UpdatePriceOfTask(ctx context.Context, in *TaskForUpdate, opts ...grpc.CallOption) (*Status, error) {
-	out := new(Status)
+func (c *taskOrderServiceClient) UpdatePriceOfTask(ctx context.Context, in *TaskForUpdate, opts ...grpc.CallOption) (*None, error) {
+	out := new(None)
 	err := c.cc.Invoke(ctx, TaskOrderService_UpdatePriceOfTask_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -153,10 +153,10 @@ func (c *taskOrderServiceClient) UpdatePriceOfTask(ctx context.Context, in *Task
 type TaskOrderServiceServer interface {
 	GetOrdersForUser(*UserOrders, TaskOrderService_GetOrdersForUserServer) error
 	GetAllTasks(*None, TaskOrderService_GetAllTasksServer) error
-	GetTask(context.Context, *OrderTask) (*Price, error)
+	GetTask(context.Context, *OrderTask) (*TaskOrderInfo, error)
 	BuyTaskAnswer(context.Context, *UserBuyAnswer) (*None, error)
-	CreateNewTask(context.Context, *Task) (*Status, error)
-	UpdatePriceOfTask(context.Context, *TaskForUpdate) (*Status, error)
+	CreateNewTask(context.Context, *Task) (*None, error)
+	UpdatePriceOfTask(context.Context, *TaskForUpdate) (*None, error)
 	mustEmbedUnimplementedTaskOrderServiceServer()
 }
 
@@ -170,16 +170,16 @@ func (UnimplementedTaskOrderServiceServer) GetOrdersForUser(*UserOrders, TaskOrd
 func (UnimplementedTaskOrderServiceServer) GetAllTasks(*None, TaskOrderService_GetAllTasksServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetAllTasks not implemented")
 }
-func (UnimplementedTaskOrderServiceServer) GetTask(context.Context, *OrderTask) (*Price, error) {
+func (UnimplementedTaskOrderServiceServer) GetTask(context.Context, *OrderTask) (*TaskOrderInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTask not implemented")
 }
 func (UnimplementedTaskOrderServiceServer) BuyTaskAnswer(context.Context, *UserBuyAnswer) (*None, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BuyTaskAnswer not implemented")
 }
-func (UnimplementedTaskOrderServiceServer) CreateNewTask(context.Context, *Task) (*Status, error) {
+func (UnimplementedTaskOrderServiceServer) CreateNewTask(context.Context, *Task) (*None, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateNewTask not implemented")
 }
-func (UnimplementedTaskOrderServiceServer) UpdatePriceOfTask(context.Context, *TaskForUpdate) (*Status, error) {
+func (UnimplementedTaskOrderServiceServer) UpdatePriceOfTask(context.Context, *TaskForUpdate) (*None, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePriceOfTask not implemented")
 }
 func (UnimplementedTaskOrderServiceServer) mustEmbedUnimplementedTaskOrderServiceServer() {}
