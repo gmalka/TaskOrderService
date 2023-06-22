@@ -11,6 +11,7 @@ service TaskOrderService {
     rpc buyTaskAnswer(UserBuyAnswer) returns (None);
     rpc createNewTask(Task) returns (None);
     rpc updatePriceOfTask(TaskForUpdate) returns (None);
+    rpc ping(None) returns (None);
 }
 
 message None {}

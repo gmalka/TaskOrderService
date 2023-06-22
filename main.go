@@ -38,6 +38,7 @@ func main() {
 		log.Println("Error: database connect error")
 		return
 	}
+	defer db.Close()
 
 	userDB := postgresservice.NewPostgresService(db)
 	userController := usercontroller.NewUserController(userDB)

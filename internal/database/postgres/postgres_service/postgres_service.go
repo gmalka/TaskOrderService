@@ -44,6 +44,11 @@ func (p postgresService) TryToBuyTask(username string, price int) (bool, error) 
 	if err != nil {
 		return false, err
 	}
+	
+	err = tx.Commit()
+	if err != nil {
+		return false, err
+	}
 
 	return true, nil
 }

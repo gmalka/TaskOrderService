@@ -34,8 +34,14 @@ func NewGrpcClient(ip, port string) (RemoteOrderService, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	client := proto.NewTaskOrderServiceClient(conn)
+
+	_, err = client.Ping(context.Background(), &proto.None{})
+	if err != nil {
+		return nil, err
+	}
+
 	return grpcClient{client: client}, nil
 }
 

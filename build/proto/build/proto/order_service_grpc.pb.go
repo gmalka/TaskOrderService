@@ -25,6 +25,7 @@ const (
 	TaskOrderService_BuyTaskAnswer_FullMethodName     = "/proto.TaskOrderService/buyTaskAnswer"
 	TaskOrderService_CreateNewTask_FullMethodName     = "/proto.TaskOrderService/createNewTask"
 	TaskOrderService_UpdatePriceOfTask_FullMethodName = "/proto.TaskOrderService/updatePriceOfTask"
+	TaskOrderService_Ping_FullMethodName              = "/proto.TaskOrderService/ping"
 )
 
 // TaskOrderServiceClient is the client API for TaskOrderService service.
@@ -37,6 +38,7 @@ type TaskOrderServiceClient interface {
 	BuyTaskAnswer(ctx context.Context, in *UserBuyAnswer, opts ...grpc.CallOption) (*None, error)
 	CreateNewTask(ctx context.Context, in *Task, opts ...grpc.CallOption) (*None, error)
 	UpdatePriceOfTask(ctx context.Context, in *TaskForUpdate, opts ...grpc.CallOption) (*None, error)
+	Ping(ctx context.Context, in *None, opts ...grpc.CallOption) (*None, error)
 }
 
 type taskOrderServiceClient struct {
@@ -147,6 +149,15 @@ func (c *taskOrderServiceClient) UpdatePriceOfTask(ctx context.Context, in *Task
 	return out, nil
 }
 
+func (c *taskOrderServiceClient) Ping(ctx context.Context, in *None, opts ...grpc.CallOption) (*None, error) {
+	out := new(None)
+	err := c.cc.Invoke(ctx, TaskOrderService_Ping_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TaskOrderServiceServer is the server API for TaskOrderService service.
 // All implementations must embed UnimplementedTaskOrderServiceServer
 // for forward compatibility
@@ -157,6 +168,7 @@ type TaskOrderServiceServer interface {
 	BuyTaskAnswer(context.Context, *UserBuyAnswer) (*None, error)
 	CreateNewTask(context.Context, *Task) (*None, error)
 	UpdatePriceOfTask(context.Context, *TaskForUpdate) (*None, error)
+	Ping(context.Context, *None) (*None, error)
 	mustEmbedUnimplementedTaskOrderServiceServer()
 }
 
@@ -181,6 +193,9 @@ func (UnimplementedTaskOrderServiceServer) CreateNewTask(context.Context, *Task)
 }
 func (UnimplementedTaskOrderServiceServer) UpdatePriceOfTask(context.Context, *TaskForUpdate) (*None, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePriceOfTask not implemented")
+}
+func (UnimplementedTaskOrderServiceServer) Ping(context.Context, *None) (*None, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
 func (UnimplementedTaskOrderServiceServer) mustEmbedUnimplementedTaskOrderServiceServer() {}
 
@@ -309,6 +324,24 @@ func _TaskOrderService_UpdatePriceOfTask_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TaskOrderService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(None)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskOrderServiceServer).Ping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskOrderService_Ping_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskOrderServiceServer).Ping(ctx, req.(*None))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TaskOrderService_ServiceDesc is the grpc.ServiceDesc for TaskOrderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -331,6 +364,10 @@ var TaskOrderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "updatePriceOfTask",
 			Handler:    _TaskOrderService_UpdatePriceOfTask_Handler,
+		},
+		{
+			MethodName: "ping",
+			Handler:    _TaskOrderService_Ping_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
