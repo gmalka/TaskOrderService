@@ -11,6 +11,7 @@ import (
 	"userService/internal/auth"
 	"userService/internal/database/postgres"
 	postgresservice "userService/internal/database/postgres/postgres_service"
+	"userService/internal/transport/grpc"
 	"userService/internal/transport/rest"
 	usercontroller "userService/internal/user_controller"
 
@@ -40,8 +41,13 @@ func main() {
 
 	userDB := postgresservice.NewPostgresService(db)
 	userController := usercontroller.NewUserController(userDB)
+	grpcController, err := grpc.NewGrpcClient(os.Getenv("GRPC_URL"), os.Getenv("GRPC_PORT"))
+	if err != nil {
+		log.Println("Cant create grpc connection: ", err)
+		return
+	}
 
-	handler := rest.NewHandler(userController, tokenManager)
+	handler := rest.NewHandler(userController, tokenManager, grpcController)
 
 	RunServer(fmt.Sprintf("%s:%s", os.Getenv("URL"), os.Getenv("PORT")), handler.InitRouter())
 }
