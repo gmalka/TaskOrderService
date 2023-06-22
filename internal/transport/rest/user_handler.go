@@ -2,20 +2,77 @@ package rest
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"userService/internal/auth"
 	"userService/internal/model"
+
+	"github.com/go-chi/chi/v5"
 )
 
-func (h Handler) tryToOrderTask(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+type OrderRequest struct {
+	Id      int `json:"id"`
+	Balance int `json:"balance"`
 }
 
-func (h Handler) getOrdersOfUser(w http.ResponseWriter, r *http.Request) {
-	//username := chi.URLParam(r, "username")
+func (h Handler) tryToOrderTask(w http.ResponseWriter, r *http.Request) {
+	username := chi.URLParam(r, "username")
+
+	h.controller.GetUserForUpdate(username)
+
+	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "data parsing error", http.StatusBadRequest)
+		return
+	}
+
+	err = json.Unmarshal(b, &order)
+	if err != nil {
+		http.Error(w, "data parsing error", http.StatusBadRequest)
+		return
+	}
+
+	balance, ok, err := h.grpcCli.TryOrderTask(username, order.Id, order.Balance)
+	if !ok {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("success ordering"))
+}
+
+func (h Handler) getOrdersForUser(w http.ResponseWriter, r *http.Request) {
+	username := chi.URLParam(r, "username")
+	page := chi.URLParam(r, "page")
+
+	pageNum, err := strconv.Atoi(page)
+	if err != nil {
+		http.Error(w, "page num error", http.StatusBadRequest)
+		return
+	}
+
+	if pageNum == 0 {
+		pageNum = 1
+	}
+
+	orders, err := h.grpcCli.GetOrdersForUser(username, pageNum)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	b, err := json.Marshal(orders)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(fmt.Sprintf("page №%d:\n", pageNum)))
+	w.Write(b)
 }
 
 func (h Handler) updateUser(w http.ResponseWriter, r *http.Request) {

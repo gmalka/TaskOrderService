@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"userService/internal/auth"
@@ -51,8 +52,10 @@ func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("success login"))
+	w.Write([]byte("success login\n"))
+	w.Write([]byte("Access: "))
 	w.Write([]byte(access))
+	w.Write([]byte("\nRefresh: "))
 	w.Write([]byte(refresh))
 }
 
@@ -76,8 +79,10 @@ func (h Handler) refresh(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("success login"))
+	w.Write([]byte("success login\n"))
+	w.Write([]byte("Access: "))
 	w.Write([]byte(access))
+	w.Write([]byte("\nRefresh: "))
 	w.Write([]byte(refresh))
 }
 
@@ -136,6 +141,7 @@ func (h Handler) checkAccess(next http.Handler) http.Handler {
 		}
 
 		ctx := context.WithValue(r.Context(), UserRequest{}, u)
+		log.Println("Success")
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

@@ -15,6 +15,7 @@ import (
 	usercontroller "userService/internal/user_controller"
 
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -51,6 +52,7 @@ func RunServer(addr string, h http.Handler) {
 		Handler: h,
 	}
 
+	log.Println("waiting for connections...")
 	go srv.ListenAndServe()
 
 	quit := make(chan os.Signal, 1)

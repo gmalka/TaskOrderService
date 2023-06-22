@@ -18,11 +18,11 @@ type UserAuth struct {
 }
 
 type UserInfo struct {
-	Firstname string  `json:"firstname"`
-	Lastname  string  `json:"lastname"`
-	Surname   string  `json:"surname"`
-	Group     string  `json:"group"`
-	Balance   float64 `json:"balance"`
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
+	Surname   string `json:"surname"`
+	Group     string `json:"group"`
+	Balance   int    `json:"balance,omitempty"`
 }
 
 type UserInfoForUpdate struct {

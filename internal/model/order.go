@@ -1,7 +1,8 @@
 package model
 
 type Order struct {
-	Count int `db:"count" json:"count"`
-	Heights []int `db:"heights" json:"heights"`
-	Price float64 `db:"price" json:"price"`
+	Id      int     `db:"id" json:"id,omitempty"`
+	Count   int     `db:"count" json:"count"`
+	Heights []int64 `db:"heights" json:"heights"`
+	Price   int     `db:"price" json:"price"`
 }

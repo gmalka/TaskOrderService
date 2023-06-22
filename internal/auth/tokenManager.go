@@ -95,7 +95,7 @@ func (u authService) CreateToken(userinfo UserInfo, ttl time.Duration, kind int)
 		Role:             userinfo.Role,
 		Firstname:        userinfo.Firstname,
 		Lastname:         userinfo.Lastname,
-		RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl))},
+		RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl * time.Minute))},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

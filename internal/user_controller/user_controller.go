@@ -14,6 +14,7 @@ type Controller interface {
 	CreateUser(user model.User) error
 	GetAllUsernames() ([]string, error)
 	GetUser(username string) (model.UserWithRole, error)
+	GetUserForUpdate(username string) (int, func() error, func() error, error)
 	DeleteUser(username string) error
 	UpdateUser(user model.UserForUpdate) error
 }
@@ -42,6 +43,10 @@ func (u userController) GetAllUsernames() ([]string, error) {
 
 func (u userController) GetUser(username string) (model.UserWithRole, error) {
 	return u.db.GetByUsername(username)
+}
+
+func (u userController) GetUserForUpdate(username string) (int, func() error, func() error, error) {
+	return u.db.GetUserForUpdate(username)
 }
 
 func (u userController) DeleteUser(username string) error {

@@ -1,6 +1,7 @@
 package postgresservice
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"userService/internal/database"
@@ -14,15 +15,43 @@ type postgresService struct {
 }
 
 const (
-	ORDERS_PER_ROW=10
+	ORDERS_PER_ROW = 10
 )
 
 func NewPostgresService(db *sqlx.DB) database.DatabaseService {
 	return postgresService{db: db}
 }
 
+func (p postgresService) TryToBuyTask(username string, price int, orderId int) (bool, error) {
+	var balance int
+
+	tx, err := p.db.Beginx()
+	if err != nil {
+		return false, err
+	}
+	defer tx.Rollback()
+
+	err = tx.QueryRow("SELECT balance FROM users WHERE username=$1 FOR UPDATE", username).Scan(&balance)
+	if err != nil {
+		return false, err
+	}
+
+	if balance - price < -1000 {
+		return false, errors.New("not enought money")
+	}
+
+	_, err = tx.Exec("UPDATE users SET balance=$1 WHERE username=$2", balance - price, username)
+	if err != nil {
+		return false, err
+	}
+
+	tx.Exec("INSERT INTO users(username,orderid) VALUES($1,$2)", username, orderId)
+
+	return true, nil
+}
+
 func (p postgresService) Create(user model.UserWithRole) error {
-	_, err := p.db.Exec("INSERT INTO users(username,password,firstname,lastname,surname,group,role) VALUES($1,$2,$3,$4,$5,$6,$7)",
+	_, err := p.db.Exec("INSERT INTO users(username,password,firstname,lastname,surname,user_group,role,balance) VALUES($1,$2,$3,$4,$5,$6,$7,0)",
 		user.User.Username, user.User.Password, user.User.Info.Firstname, user.User.Info.Lastname, user.User.Info.Surname, user.User.Info.Group, user.Role)
 	if err != nil {
 		return fmt.Errorf("cant create user: %s", user.User.Username)
@@ -34,9 +63,10 @@ func (p postgresService) Create(user model.UserWithRole) error {
 func (p postgresService) GetByUsername(username string) (model.UserWithRole, error) {
 	var user model.UserWithRole
 
-	err := p.db.QueryRow("SELECT password,firstname,lastname,surname,group,balance,role FROM users WHERE username=$1", username).Scan(&user.User.Password,&user.User.Info.Firstname,
+	err := p.db.QueryRow("SELECT password,firstname,lastname,surname,user_group,balance,role FROM users WHERE username=$1", username).Scan(&user.User.Password, &user.User.Info.Firstname,
 		&user.User.Info.Lastname, &user.User.Info.Surname, &user.User.Info.Group, &user.User.Info.Balance, &user.Role)
 	if err != nil {
+		log.Println(err)
 		return user, fmt.Errorf("cant get info about user: %s", username)
 	}
 
@@ -86,7 +116,6 @@ func (p postgresService) Delete(username string) error {
 	return err
 }
 
-
 func (p postgresService) GetOrdersOfUser(username string, number int) ([]model.Order, error) {
 	var orders []model.Order
 
@@ -94,7 +123,7 @@ func (p postgresService) GetOrdersOfUser(username string, number int) ([]model.O
 		number--
 	}
 
-	rows, err := p.db.Query("SELECT orders.count, orders.heights, orders.price FROM user_orders LEFT JOIN orders ON user_orders.orderId=orders.id WHERE username=$1 LIMIT $2, $3", username, ORDERS_PER_ROW, number * 10)
+	rows, err := p.db.Query("SELECT orders.count, orders.heights, orders.price FROM user_orders LEFT JOIN orders ON user_orders.orderId=orders.id WHERE username=$1 LIMIT $2, $3", username, ORDERS_PER_ROW, number*10)
 	if err != nil {
 		log.Println("Error geting user orders ", username)
 		return nil, fmt.Errorf("cant get users orders: %s", username)
