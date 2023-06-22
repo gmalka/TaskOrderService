@@ -6,6 +6,12 @@ type User struct {
 	Info     UserInfo `json:"info"`
 }
 
+type UserForUpdate struct {
+	Username string            `json:"username"`
+	Password string            `json:"password"`
+	Info     UserInfoForUpdate `json:"info"`
+}
+
 type UserAuth struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -16,7 +22,14 @@ type UserInfo struct {
 	Lastname  string  `json:"lastname"`
 	Surname   string  `json:"surname"`
 	Group     string  `json:"group"`
-	Balance   float64 `json:"balance,omitempty"`
+	Balance   float64 `json:"balance"`
+}
+
+type UserInfoForUpdate struct {
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
+	Surname   string `json:"surname"`
+	Group     string `json:"group"`
 }
 
 type UserWithRole struct {

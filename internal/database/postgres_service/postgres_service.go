@@ -40,14 +40,6 @@ func (p postgresService) GetByUsername(username string) (model.UserWithRole, err
 	return user, nil
 }
 
-func (p postgresService) GetPassword(username string) (string, error) {
-	var result string
-
-	err := p.db.QueryRow("SELECT password FROM users WHERE username=$1", username).Scan(&result)
-
-	return result, err
-}
-
 func (p postgresService) GetAllUsers() ([]string, error) {
 	var users []string
 
@@ -72,7 +64,7 @@ func (p postgresService) GetAllUsers() ([]string, error) {
 	return users, nil
 }
 
-func (p postgresService) Update(user model.User) error {
+func (p postgresService) Update(user model.UserForUpdate) error {
 	_, err := p.db.Exec("UPDATE users SET password=$1,firstname=$2,lastname=$3,surname=$4,group=$5 WHERE username=$6",
 		user.Password, user.Info.Firstname, user.Info.Lastname, user.Info.Surname, user.Info.Group, user.Username)
 	if err != nil {

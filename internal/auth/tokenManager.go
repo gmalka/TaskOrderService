@@ -9,19 +9,12 @@ import (
 )
 
 const (
+	ACCESS_TOKEN_TTL  = 15
+	REFRESH_TOKEN_TTL = 60
+
 	AccessToken = iota
 	RefreshToken
 )
-
-type authService struct {
-	accessSecret  []byte
-	refreshSecret []byte
-}
-
-type TokenManager interface {
-	CreateToken(userinfo UserInfo, ttl time.Duration, kind int) (string, error)
-	ParseToken(inputToken string, kind int) (UserClaims, error)
-}
 
 type UserClaims struct {
 	Username  string `json:"username"`
@@ -36,6 +29,16 @@ type UserInfo struct {
 	Role      string `json:"role"`
 	Firstname string `json:"firstname"`
 	Lastname  string `json:"lastname"`
+}
+
+type authService struct {
+	accessSecret  []byte
+	refreshSecret []byte
+}
+
+type TokenManager interface {
+	CreateToken(userinfo UserInfo, ttl time.Duration, kind int) (string, error)
+	ParseToken(inputToken string, kind int) (UserClaims, error)
 }
 
 func (u authService) ParseToken(inputToken string, kind int) (UserClaims, error) {
@@ -67,7 +70,7 @@ func (u authService) ParseToken(inputToken string, kind int) (UserClaims, error)
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return UserClaims{}, fmt.Errorf("error get user claims from token")
+		return UserClaims{}, fmt.Errorf("cant get user claims from token")
 	}
 
 	return UserClaims{
