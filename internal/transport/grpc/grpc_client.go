@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"userService/build/proto/build/proto"
@@ -32,14 +31,14 @@ func NewGrpcClient(ip, port string) (RemoteOrderService, error) {
 	path := fmt.Sprintf("%s:%s", ip, port)
 	conn, err := grpc.Dial(path, opts...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can't connect by grpc to path %s: %v", path, err)
 	}
 
 	client := proto.NewTaskOrderServiceClient(conn)
 
 	_, err = client.Ping(context.Background(), &proto.None{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can't ping to grpc server by path %s: %v", path, err)
 	}
 
 	return grpcClient{client: client}, nil
@@ -51,7 +50,7 @@ func (g grpcClient) BuyTaskAnswer(username string, taskId int) error {
 		Id: int64(taskId),
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("can't buy tasks answer for user %s: %v", username, err)
 	}
 
 	return nil
@@ -63,7 +62,7 @@ func (g grpcClient) UpdatePriceOfTask(id, price int) error {
 		Price: int64(price),
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("can't update tasks price by id %d: %v", id, err)
 	}
 
 	return nil
@@ -77,7 +76,7 @@ func (g grpcClient) CreateNewTask(task model.Task) error {
 		Price: int64(task.Price),
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("can't create new task: %v", err)
 	}
 
 	return nil
@@ -90,7 +89,7 @@ func (g grpcClient) GetTask(id int) (model.TaskOrderInfo, error) {
 		Id: int64(id),
 	})
 	if err != nil {
-		return task, err
+		return task, fmt.Errorf("can't get task by id %d: %v", id, err)
 	}
 
 	task.Id = id
@@ -103,7 +102,7 @@ func (g grpcClient) GetTask(id int) (model.TaskOrderInfo, error) {
 func (g grpcClient) GetAllTasks() ([]model.Task, error) {
 	res, err := g.client.GetAllTasks(context.Background(), &proto.None{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can't get all tasks: %v", err)
 	}
 
 	result := make([]model.Task, 0, 10)
@@ -114,7 +113,7 @@ func (g grpcClient) GetAllTasks() ([]model.Task, error) {
 		}
 
 		if err != nil {
-			return nil, errors.New("error while geting orders for user")
+			return nil, fmt.Errorf("can't get task: %v", err)
 		}
 
 		result = append(result, model.Task{
@@ -134,7 +133,7 @@ func (g grpcClient) GetOrdersForUser(username string, page int) ([]model.Task, e
 		Page: int64(page),
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can't get order for user %s: %v", username, err)
 	}
 
 	result := make([]model.Task, 0, 10)
@@ -145,7 +144,7 @@ func (g grpcClient) GetOrdersForUser(username string, page int) ([]model.Task, e
 		}
 
 		if err != nil {
-			return nil, errors.New("error while geting orders for user")
+			return nil, fmt.Errorf("can't get users task: %v", err)
 		}
 
 		result = append(result, model.Task{

@@ -33,9 +33,11 @@ func main() {
 		Sslmode:  os.Getenv("DB_SSLMODE"),
 	}
 
+	logger := log.New(os.Stdout, "Error: ", log.Lshortfile | log.Ltime)
+
 	db, err := postgres.NewPostgresConnection(config)
 	if err != nil {
-		log.Println("Error: database connect error")
+		logger.Println(err)
 		return
 	}
 	defer db.Close()
@@ -44,11 +46,11 @@ func main() {
 	userController := usercontroller.NewUserController(userDB)
 	grpcController, err := grpc.NewGrpcClient(os.Getenv("GRPC_URL"), os.Getenv("GRPC_PORT"))
 	if err != nil {
-		log.Println("Cant create grpc connection: ", err)
+		logger.Println(err)
 		return
 	}
 
-	handler := rest.NewHandler(userController, tokenManager, grpcController)
+	handler := rest.NewHandler(userController, tokenManager, grpcController, logger)
 
 	RunServer(fmt.Sprintf("%s:%s", os.Getenv("URL"), os.Getenv("PORT")), handler.InitRouter())
 }

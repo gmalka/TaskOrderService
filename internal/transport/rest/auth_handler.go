@@ -18,24 +18,28 @@ func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
 
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "input data read error", http.StatusBadRequest)
+		h.logger.Printf("cant read body: %v\n", err.Error())
+		http.Error(w, "some server error", http.StatusInternalServerError)
 		return
 	}
 
 	err = json.Unmarshal(b, &userAuth)
 	if err != nil {
-		http.Error(w, "data parsing error", http.StatusBadRequest)
+		h.logger.Printf("unmarshal error: %v\n", err.Error())
+		http.Error(w, "wrong input data", http.StatusBadRequest)
 		return
 	}
 
 	user, err := h.controller.GetUser(userAuth.Username)
 	if err != nil {
+		h.logger.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if ok := auth.CheckPassword(userAuth.Password, user.User.Password); !ok {
-		http.Error(w, "passwords mismatch", http.StatusBadRequest)
+	if err := auth.CheckPassword(userAuth.Password, user.User.Password); err != nil {
+		h.logger.Println(err.Error())
+		http.Error(w, "passwords mismatch", http.StatusUnauthorized)
 		return
 	}
 
@@ -46,6 +50,7 @@ func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
 		Lastname:  user.User.Info.Lastname,
 	})
 	if err != nil {
+		h.logger.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -62,7 +67,8 @@ func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
 func (h Handler) refresh(w http.ResponseWriter, r *http.Request) {
 	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
 	if !ok {
-		http.Error(w, "some token error", http.StatusBadRequest)
+		h.logger.Println("cant get data from context")
+		http.Error(w, "some server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -73,7 +79,8 @@ func (h Handler) refresh(w http.ResponseWriter, r *http.Request) {
 		Lastname:  u.Lastname,
 	})
 	if err != nil {
-		http.Error(w, "token generate error", http.StatusBadRequest)
+		h.logger.Println(err.Error())
+		http.Error(w, "some server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -91,24 +98,28 @@ func (h Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "input data read error", http.StatusBadRequest)
+		h.logger.Printf("cant read body: %v\n", err.Error())
+		http.Error(w, "some server error", http.StatusInternalServerError)
 		return
 	}
 
 	err = json.Unmarshal(b, &user)
 	if err != nil {
-		http.Error(w, "data parsing error", http.StatusBadRequest)
+		h.logger.Printf("unmarshal error: %v\n", err.Error())
+		http.Error(w, "wrong input data", http.StatusBadRequest)
 		return
 	}
 
 	user.Password, err = auth.HashPassword(user.Password)
 	if err != nil {
-		http.Error(w, "data parsing error", http.StatusBadRequest)
+		h.logger.Println(err.Error())
+		http.Error(w, "some server error", http.StatusInternalServerError)
 		return
 	}
 
 	err = h.controller.CreateUser(user)
 	if err != nil {
+		h.logger.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -124,19 +135,22 @@ func (h Handler) checkAccess(next http.Handler) http.Handler {
 
 		tokenParts := strings.Split(tokenRaw, " ")
 		if len(tokenParts) < 2 && tokenParts[0] != "Bearer" {
-			http.Error(w, "wrong input data", http.StatusBadRequest)
+			h.logger.Printf("wrong authorization: %v\n", tokenParts)
+			http.Error(w, "wrong authorization token", http.StatusBadRequest)
 			return
 		}
 
 		u, err := h.tokenManager.ParseToken(tokenParts[1], auth.AccessToken)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			h.logger.Println(err.Error())
+			http.Error(w, "wrong authorization token", http.StatusBadRequest)
 			return
 		}
 
 		username := chi.URLParam(r, "username")
 		if username != u.Username {
-			http.Error(w, "invalid resource", http.StatusBadRequest)
+			h.logger.Printf("username in token and path are different: %s-%s", username, u.Username)
+			http.Error(w, "invalid resource", http.StatusNotFound)
 			return
 		}
 
@@ -152,13 +166,15 @@ func (h Handler) checkRefresh(next http.Handler) http.Handler {
 
 		tokenParts := strings.Split(tokenRaw, " ")
 		if len(tokenParts) < 2 && tokenParts[0] != "Bearer" {
-			http.Error(w, "wrong input data", http.StatusBadRequest)
+			h.logger.Printf("wrong authorization: %v\n", tokenParts)
+			http.Error(w, "wrong authorization token", http.StatusBadRequest)
 			return
 		}
 
 		u, err := h.tokenManager.ParseToken(tokenParts[1], auth.RefreshToken)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			h.logger.Println(err.Error())
+			http.Error(w, "wrong authorization token", http.StatusBadRequest)
 			return
 		}
 

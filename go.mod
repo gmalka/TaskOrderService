@@ -10,6 +10,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.2.0
+	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/crypto v0.10.0
 	google.golang.org/grpc v1.56.1
 	google.golang.org/protobuf v1.30.0

@@ -51,7 +51,7 @@ func NewAuthService(accessSecret, refreshSecret string) TokenManager {
 func (u authService) ParseToken(inputToken string, kind int) (UserClaims, error) {
 	token, err := jwt.Parse(inputToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method %v", token.Header["alg"])
 		}
 
 		var secret []byte
@@ -61,14 +61,14 @@ func (u authService) ParseToken(inputToken string, kind int) (UserClaims, error)
 		case RefreshToken:
 			secret = u.refreshSecret
 		default:
-			return "", fmt.Errorf("unknown secret kind: %d", kind)
+			return "", fmt.Errorf("unknown secret kind %d", kind)
 		}
 
 		return secret, nil
 	})
 
 	if err != nil {
-		return UserClaims{}, err
+		return UserClaims{}, fmt.Errorf("can't parse token: %v", err)
 	}
 
 	if !token.Valid {
@@ -77,7 +77,7 @@ func (u authService) ParseToken(inputToken string, kind int) (UserClaims, error)
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return UserClaims{}, fmt.Errorf("cant get user claims from token")
+		return UserClaims{}, fmt.Errorf("can't get user claims from token")
 	}
 
 	return UserClaims{
@@ -107,7 +107,7 @@ func (u authService) CreateToken(userinfo UserInfo, ttl time.Duration, kind int)
 	case RefreshToken:
 		secret = u.refreshSecret
 	default:
-		return "", fmt.Errorf("unknown secret kind: %d", kind)
+		return "", fmt.Errorf("unknown secret kind %d", kind)
 	}
 
 	return token.SignedString(secret)

@@ -16,5 +16,10 @@ type DbConfig struct {
 }
 
 func NewPostgresConnection(config DbConfig) (*sqlx.DB, error) {
-	return sqlx.Connect("postgres", fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", config.Host, config.Port, config.User, config.Password, config.Dbname, config.Sslmode))
+	db, err := sqlx.Connect("postgres", fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", config.Host, config.Port, config.User, config.Password, config.Dbname, config.Sslmode))
+	if err != nil {
+		return nil, fmt.Errorf("can't connect bd: %v", err)
+	}
+
+	return db, nil
 }

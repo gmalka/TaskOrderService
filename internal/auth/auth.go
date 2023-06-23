@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"log"
+	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -9,19 +9,17 @@ import (
 func HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Println("Error while hashing password")
-		return "", err
+		return "", fmt.Errorf("can't hash password: %v", err)
 	}
 
 	return string(hashedPassword), nil
 }
 
-func CheckPassword(verifiable, wanted string) bool {
+func CheckPassword(verifiable, wanted string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(wanted), []byte(verifiable))
 	if err != nil {
-		log.Println("Error: failed authorization")
-		return  false
+		return fmt.Errorf("authorization failed: %v", err)
 	}
 
-	return true
+	return nil
 }

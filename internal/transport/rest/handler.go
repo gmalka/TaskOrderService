@@ -2,6 +2,7 @@ package rest
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"userService/internal/auth"
 	"userService/internal/transport/grpc"
@@ -15,10 +16,11 @@ type Handler struct {
 	controller   usercontroller.Controller
 	tokenManager auth.TokenManager
 	grpcCli      grpc.RemoteOrderService
+	logger       *log.Logger
 }
 
-func NewHandler(controller usercontroller.Controller, tokenManager auth.TokenManager, grpcCli grpc.RemoteOrderService) Handler {
-	return Handler{controller: controller, tokenManager: tokenManager, grpcCli: grpcCli}
+func NewHandler(controller usercontroller.Controller, tokenManager auth.TokenManager, grpcCli grpc.RemoteOrderService, logger *log.Logger) Handler {
+	return Handler{controller: controller, tokenManager: tokenManager, grpcCli: grpcCli, logger: logger}
 }
 
 func (h Handler) InitRouter() http.Handler {
@@ -60,12 +62,14 @@ func (h Handler) InitRouter() http.Handler {
 func (h Handler) getUsersNicknames(w http.ResponseWriter, r *http.Request) {
 	s, err := h.controller.GetAllUsernames()
 	if err != nil {
+		h.logger.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	b, err := json.Marshal(s)
 	if err != nil {
+		h.logger.Println(err.Error())
 		http.Error(w, "data parsing error", http.StatusBadRequest)
 		return
 	}

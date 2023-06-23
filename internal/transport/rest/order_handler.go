@@ -17,13 +17,15 @@ type UpdateReuqest struct {
 func (h Handler) getAllTasks(w http.ResponseWriter, r *http.Request) {
 	tasks, err := h.grpcCli.GetAllTasks()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		h.logger.Println(err.Error())
+		http.Error(w, "some server error", http.StatusInternalServerError)
 		return
 	}
 
 	b, err := json.Marshal(tasks)
 	if err != nil {
-		http.Error(w, "token parse error", http.StatusBadRequest)
+		h.logger.Printf("marshal error: %v\n", err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -36,29 +38,34 @@ func (h Handler) updateTask(w http.ResponseWriter, r *http.Request) {
 
 	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
 	if !ok {
-		http.Error(w, "some token error", http.StatusBadRequest)
+		h.logger.Println("cant get data from context")
+		http.Error(w, "some server error", http.StatusInternalServerError)
 		return
 	}
 
 	if u.Role != usercontroller.ADMIN_ROLE {
-		http.Error(w, "permission denied", http.StatusBadRequest)
+		h.logger.Printf("permission denied for user %s\n", u.Username)
+		http.Error(w, "permission denied", http.StatusForbidden)
 		return
 	}
 
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "some parse error", http.StatusBadRequest)
+		h.logger.Printf("cant read body: %v\n", err.Error())
+		http.Error(w, "some parse error", http.StatusInternalServerError)
 		return
 	}
 
 	err = json.Unmarshal(b, &update)
 	if err != nil {
-		http.Error(w, "some parse error", http.StatusBadRequest)
+		h.logger.Printf("unmarshal error: %v\n", err.Error())
+		http.Error(w, "wrong input data", http.StatusBadRequest)
 		return
 	}
 
 	err = h.grpcCli.UpdatePriceOfTask(update.TaskId, update.NewPrice)
 	if err != nil {
+		h.logger.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -72,29 +79,34 @@ func (h Handler) createTask(w http.ResponseWriter, r *http.Request) {
 
 	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
 	if !ok {
-		http.Error(w, "some token error", http.StatusBadRequest)
+		h.logger.Println("cant get data from context")
+		http.Error(w, "some server error", http.StatusInternalServerError)
 		return
 	}
 
 	if u.Role != usercontroller.ADMIN_ROLE {
-		http.Error(w, "permission denied", http.StatusBadRequest)
+		h.logger.Printf("permission denied for user %s\n", u.Username)
+		http.Error(w, "permission denied", http.StatusForbidden)
 		return
 	}
 
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "some parse error", http.StatusBadRequest)
+		h.logger.Printf("cant read body: %v\n", err.Error())
+		http.Error(w, "some server error", http.StatusInternalServerError)
 		return
 	}
 
 	err = json.Unmarshal(b, &task)
 	if err != nil {
-		http.Error(w, "some parse error", http.StatusBadRequest)
+		h.logger.Printf("unmarshal error: %v\n", err.Error())
+		http.Error(w, "wrong input data", http.StatusBadRequest)
 		return
 	}
 
 	err = h.grpcCli.CreateNewTask(task)
 	if err != nil {
+		h.logger.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
