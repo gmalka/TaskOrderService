@@ -44,7 +44,7 @@ func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	access, refresh, err := generateTokens(h.tokenManager, auth.UserInfo{
+	tokens, err := generateTokens(h.tokenManager, auth.UserInfo{
 		Username:  user.User.Username,
 		Role:      user.Role,
 		Firstname: user.User.Info.Firstname,
@@ -56,13 +56,16 @@ func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	b, err = json.Marshal(tokens)
+	if err != nil {
+		h.logger.Printf("marshal error: %v\n", err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("success login\n"))
-	w.Write([]byte("Access: "))
-	w.Write([]byte(access))
-	w.Write([]byte("\nRefresh: "))
-	w.Write([]byte(refresh))
+	w.Write(b)
 }
 
 func (h Handler) refresh(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +76,7 @@ func (h Handler) refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	access, refresh, err := generateTokens(h.tokenManager, auth.UserInfo{
+	tokens, err := generateTokens(h.tokenManager, auth.UserInfo{
 		Username:  u.Username,
 		Role:      u.Role,
 		Firstname: u.Firstname,
@@ -85,13 +88,16 @@ func (h Handler) refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	b, err := json.Marshal(tokens)
+	if err != nil {
+		h.logger.Printf("marshal error: %v\n", err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("success login\n"))
-	w.Write([]byte("Access: "))
-	w.Write([]byte(access))
-	w.Write([]byte("\nRefresh: "))
-	w.Write([]byte(refresh))
+	w.Write(b)
 }
 
 func (h Handler) registerUser(w http.ResponseWriter, r *http.Request) {

@@ -1,16 +1,61 @@
 package rest
 
 import (
+	"embed"
+	"html/template"
 	"log"
 	"net/http"
+	"time"
 	"userService/internal/auth"
+	"userService/internal/model"
 	"userService/internal/transport/grpc"
 	usercontroller "userService/internal/user_controller"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
-	httpSwagger "github.com/swaggo/http-swagger"
 )
+
+const (
+	swaggerTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-standalone-preset.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.22.1/swagger-ui-standalone-preset.js"></script> -->
+    <script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.22.1/swagger-ui-bundle.js"></script> -->
+    <link rel="stylesheet" href="//unpkg.com/swagger-ui-dist@3/swagger-ui.css" />
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.22.1/swagger-ui.css" /> -->
+	<style>
+		body {
+			margin: 0;
+		}
+	</style>
+    <title>Swagger</title>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <script>
+        window.onload = function() {
+          SwaggerUIBundle({
+            url: "/public/swagger.json?{{.Time}}",
+            dom_id: '#swagger-ui',
+            presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+            ],
+            layout: "StandaloneLayout"
+          })
+        }
+    </script>
+</body>
+</html>
+`
+)
+
+var content embed.FS
 
 type Handler struct {
 	controller   usercontroller.Controller
@@ -28,8 +73,6 @@ func (h Handler) InitRouter() http.Handler {
 
 	r.Use(middleware.Logger)
 
-	r.Get("/users", h.getUsersNicknames)
-
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/register", h.registerUser)
 		r.Post("/login", h.loginIn)
@@ -39,49 +82,66 @@ func (h Handler) InitRouter() http.Handler {
 		})
 	})
 
-	r.Route("/{username}", func(r chi.Router) {
-		r.Use(h.checkAccess)
-		r.Get("/", h.getInfo)
-		r.Put("/", h.updateUser)
+	r.Route("/users", func(r chi.Router) {
+		r.Get("/", h.getUsersNicknames)
 
-		r.Route("/orders", func(r chi.Router) {
+		r.Route("/{username}", func(r chi.Router) {
 			r.Use(h.checkAccess)
-			r.Get("/{page:^(|[1-9][0-9]*)$}", h.getUsersOrders)
-			r.Post("/", h.tryToOrderTask)
+			r.Get("/", h.getInfo)
+			r.Put("/", h.updateUser)
 
-			r.Get("/", h.getAllTasks)
-			r.Put("/", h.updateTask)
-			r.Post("/", h.createTask)
+			r.Route("/orders", func(r chi.Router) {
+				r.Use(h.checkAccess)
+				r.Get("/{page:^(|[1-9][0-9]*)$}", h.getUsersOrders)
+				r.Post("/", h.tryToOrderTask)
+
+				r.Get("/", h.getAllTasks)
+				r.Put("/", h.updateTask)
+				r.Post("/", h.createTask)
+			})
 		})
-
 	})
 
-	r.Get("/spec", handleSwaggerFile())
-	r.Get("/docs/*", httpSwagger.Handler(
-		httpSwagger.URL("/spec"),
-	  ))
+	r.Get("/docs", h.swaggerUI)
+	r.Get("/public/*", func(w http.ResponseWriter, r *http.Request) {
+		http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))).ServeHTTP(w, r)
+	})
 
 	return r
 }
 
-func handleSwaggerFile() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./public/swagger.json")
+func (h Handler)swaggerUI(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	tmpl, err := template.New("swagger").Parse(swaggerTemplate)
+	if err != nil {
+		return
+	}
+
+	err = tmpl.Execute(w, struct {
+		Time int64
+	}{
+		Time: time.Now().Unix(),
+	})
+	if err != nil {
+		return
 	}
 }
 
-func generateTokens(tokenManager auth.TokenManager, user auth.UserInfo) (string, string, error) {
+func generateTokens(tokenManager auth.TokenManager, user auth.UserInfo) (model.AuthInfo, error) {
 	accessToken, err := tokenManager.CreateToken(user, auth.ACCESS_TOKEN_TTL, auth.AccessToken)
 	if err != nil {
-		return "", "", err
+		return model.AuthInfo{}, err
 	}
 
 	refreshToken, err := tokenManager.CreateToken(user, auth.REFRESH_TOKEN_TTL, auth.RefreshToken)
 	if err != nil {
-		return "", "", err
+		return model.AuthInfo{}, err
 	}
 
-	return accessToken, refreshToken, nil
+	return model.AuthInfo{
+		Access: accessToken,
+		Refresh: refreshToken,
+	}, nil
 }
 
 type UserRequest struct{}
