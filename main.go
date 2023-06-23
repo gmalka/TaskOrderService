@@ -33,11 +33,17 @@ func main() {
 		Sslmode:  os.Getenv("DB_SSLMODE"),
 	}
 
-	logger := log.New(os.Stdout, "Error: ", log.Lshortfile | log.Ltime)
+	loggerErr := log.New(os.Stderr, "ERROR:\t ", log.Lshortfile|log.Ltime)
+	loggerInfo := log.New(os.Stdout, "INFO:\t ", log.Lshortfile|log.Ltime)
+
+	log := rest.Log{
+		Err: loggerErr,
+		Inf: loggerInfo,
+	}
 
 	db, err := postgres.NewPostgresConnection(config)
 	if err != nil {
-		logger.Println(err)
+		log.Err.Println(err)
 		return
 	}
 	defer db.Close()
@@ -46,30 +52,30 @@ func main() {
 	userController := usercontroller.NewUserController(userDB)
 	grpcController, err := grpc.NewGrpcClient(os.Getenv("GRPC_URL"), os.Getenv("GRPC_PORT"))
 	if err != nil {
-		logger.Println(err)
+		log.Err.Println(err)
 		return
 	}
 
-	handler := rest.NewHandler(userController, tokenManager, grpcController, logger)
+	handler := rest.NewHandler(userController, tokenManager, grpcController, log)
 
-	RunServer(fmt.Sprintf("%s:%s", os.Getenv("URL"), os.Getenv("PORT")), handler.InitRouter())
+	RunServer(fmt.Sprintf("%s:%s", os.Getenv("URL"), os.Getenv("PORT")), handler.InitRouter(), log)
 }
 
-func RunServer(addr string, h http.Handler) {
+func RunServer(addr string, h http.Handler, log rest.Log) {
 	srv := &http.Server{
 		Addr:    addr,
 		Handler: h,
 	}
 
-	log.Println("waiting for connections...")
+	log.Inf.Println("waiting for connections...")
 	go srv.ListenAndServe()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	log.Println("Shutdown Server...")
+	log.Inf.Println("Shutdown Server...")
 
 	ctx, _ := context.WithTimeout(context.Background(), 1*time.Minute)
 	srv.Shutdown(ctx)
-	log.Println("Server exited")
+	log.Inf.Println("Server exited")
 }
