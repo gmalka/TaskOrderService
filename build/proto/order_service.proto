@@ -40,6 +40,7 @@ message Task {
     int64 count = 2;
     repeated int64 heiaghts = 3;
     int64 price = 4;
+    int64 answer = 5;
 }
 
 message UserOrders {

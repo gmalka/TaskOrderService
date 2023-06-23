@@ -92,7 +92,7 @@
         }
       }
     },
-    "/users": {
+    "/user": {
       "get": {
         "tags": [
           "user"
@@ -180,19 +180,89 @@
           }
         }
       }
+    },
+    "/users/{username}/orders": {
+      "post": {
+        "security": [
+          {
+            "Bearer": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "auth"
+        ],
+        "summary": "Получение заказов пользователя.",
+        "operationId": "GetUsersOrdersRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Page",
+            "description": "страница, которую нужно получить, при пустом значении возвращает первую страницу.",
+            "name": "page",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetUsersOrdersResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
+      }
     }
   },
   "definitions": {
     "AuthInfo": {
       "type": "object",
       "properties": {
-        "access": {
+        "Access": {
           "type": "string",
           "x-go-name": "Refresh"
         },
-        "refresh": {
+        "Refresh": {
           "type": "string",
           "x-go-name": "Access"
+        }
+      },
+      "x-go-package": "userService/internal/model"
+    },
+    "Task": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Count"
+        },
+        "heights": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "x-go-name": "Heights"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Id"
+        },
+        "price": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Price"
         }
       },
       "x-go-package": "userService/internal/model"
@@ -318,6 +388,15 @@
     }
   },
   "responses": {
+    "GetUsersOrdersResponse": {
+      "description": "",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Task"
+        }
+      }
+    },
     "LoginResponse": {
       "description": "",
       "schema": {

@@ -74,6 +74,7 @@ func (g grpcClient) CreateNewTask(task model.Task) error {
 		Count: int64(task.Count),
 		Heiaghts: task.Heights,
 		Price: int64(task.Price),
+		Answer: int64(task.Answer),
 	})
 	if err != nil {
 		return fmt.Errorf("can't create new task: %v", err)
@@ -121,6 +122,7 @@ func (g grpcClient) GetAllTasks() ([]model.Task, error) {
 			Count: int(resp.Count),
 			Heights: resp.Heiaghts,
 			Price: int(resp.Price),
+			Answer: int(resp.Answer),
 		})
 	}
 

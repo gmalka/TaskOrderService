@@ -64,7 +64,7 @@ func (h Handler) tryToOrderTask(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(strconv.Itoa(order.Answer)))
 }
 
-func (h Handler) getUsersOrders(w http.ResponseWriter, r *http.Request) {
+func (h Handler) getUsersTasks(w http.ResponseWriter, r *http.Request) {
 	username := chi.URLParam(r, "username")
 	page := chi.URLParam(r, "page")
 

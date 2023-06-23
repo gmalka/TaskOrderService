@@ -2,7 +2,7 @@ package handlers
 
 import "userService/internal/model"
 
-// swagger:route GET /users user EmptyRequest
+// swagger:route GET /user user EmptyRequest
 // Получение ников всех пользователей.
 //
 // responses:
