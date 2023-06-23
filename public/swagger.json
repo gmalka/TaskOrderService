@@ -1,0 +1,37 @@
+{
+  "swagger": "2.0",
+  "info": {},
+  "paths": {
+    "/users": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get all users.",
+        "operationId": "EmptyRequest",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/UsersGetAllResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
+      }
+    }
+  },
+  "responses": {
+    "ErrorReply": {
+      "description": "ErrorReply replys an error of API calling."
+    },
+    "UsersGetAllResponse": {
+      "description": "",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

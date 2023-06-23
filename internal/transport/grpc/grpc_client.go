@@ -36,10 +36,10 @@ func NewGrpcClient(ip, port string) (RemoteOrderService, error) {
 
 	client := proto.NewTaskOrderServiceClient(conn)
 
-	_, err = client.Ping(context.Background(), &proto.None{})
+	/*_, err = client.Ping(context.Background(), &proto.None{})
 	if err != nil {
 		return nil, fmt.Errorf("can't ping to grpc server by path %s: %v", path, err)
-	}
+	}*/
 
 	return grpcClient{client: client}, nil
 }

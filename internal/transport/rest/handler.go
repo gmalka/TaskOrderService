@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"userService/internal/auth"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Handler struct {
@@ -56,27 +56,18 @@ func (h Handler) InitRouter() http.Handler {
 
 	})
 
+	r.Get("/spec", handleSwaggerFile())
+	r.Get("/docs/*", httpSwagger.Handler(
+		httpSwagger.URL("/spec"),
+	  ))
+
 	return r
 }
 
-func (h Handler) getUsersNicknames(w http.ResponseWriter, r *http.Request) {
-	s, err := h.controller.GetAllUsernames()
-	if err != nil {
-		h.logger.Println(err.Error())
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+func handleSwaggerFile() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./public/swagger.json")
 	}
-
-	b, err := json.Marshal(s)
-	if err != nil {
-		h.logger.Println(err.Error())
-		http.Error(w, "data parsing error", http.StatusBadRequest)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(b)
 }
 
 func generateTokens(tokenManager auth.TokenManager, user auth.UserInfo) (string, string, error) {
