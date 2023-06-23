@@ -131,9 +131,16 @@ func (h Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	b, err = json.Marshal(model.ResponseMessage{Message: "success register"})
+	if err != nil {
+		h.logger.Err.Printf("marshal error: %v\n", err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("success registartion"))
+	w.Write(b)
 }
 
 func (h Handler) checkAccess(next http.Handler) http.Handler {

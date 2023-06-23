@@ -94,6 +94,7 @@ func (h Handler) InitRouter() http.Handler {
 			r.Use(h.checkAccess)
 			r.Get("/", h.getInfo)
 			r.Put("/", h.updateUser)
+			r.Delete("/", h.deleteUser)
 
 			r.Route("/orders", func(r chi.Router) {
 				r.Use(h.checkAccess)
@@ -101,8 +102,9 @@ func (h Handler) InitRouter() http.Handler {
 				r.Post("/", h.tryToOrderTask)
 
 				r.Get("/", h.getAllTasks)
-				r.Put("/", h.updateTask)
-				r.Post("/", h.createTask)
+				r.Put("/edit", h.updateTask)
+				r.Post("/edit", h.createTask)
+				r.Delete("/edit/{taskId}", h.deleteTask)
 			})
 		})
 	})
@@ -115,7 +117,7 @@ func (h Handler) InitRouter() http.Handler {
 	return r
 }
 
-func (h Handler)swaggerUI(w http.ResponseWriter, r *http.Request) {
+func (h Handler) swaggerUI(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	tmpl, err := template.New("swagger").Parse(swaggerTemplate)
 	if err != nil {
@@ -144,7 +146,7 @@ func generateTokens(tokenManager auth.TokenManager, user auth.UserInfo) (model.A
 	}
 
 	return model.AuthInfo{
-		Access: accessToken,
+		Access:  accessToken,
 		Refresh: refreshToken,
 	}, nil
 }

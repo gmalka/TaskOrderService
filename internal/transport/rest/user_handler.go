@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"userService/internal/auth"
 	"userService/internal/model"
 
 	"github.com/go-chi/chi/v5"
@@ -22,8 +21,8 @@ func (h Handler) getUsersNicknames(w http.ResponseWriter, r *http.Request) {
 
 	b, err := json.Marshal(s)
 	if err != nil {
-		h.logger.Err.Println(err.Error())
-		http.Error(w, "message: data parsing error", http.StatusBadRequest)
+		h.logger.Err.Printf("marshal error: %v\n", err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -33,6 +32,8 @@ func (h Handler) getUsersNicknames(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handler) tryToOrderTask(w http.ResponseWriter, r *http.Request) {
+	var answer model.TaskAnswer
+
 	username := chi.URLParam(r, "username")
 	taskId := r.Header.Get("taskId")
 
@@ -57,11 +58,23 @@ func (h Handler) tryToOrderTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.grpcCli.BuyTaskAnswer(username, order.Id)
+	err = h.grpcCli.BuyTaskAnswer(username, order.Id)
+	if err != nil {
+		h.logger.Err.Println(err.Error())
+		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		return
+	}
+
+	answer.Answer = order.Answer
+	b, err := json.Marshal(answer)
+	if err != nil {
+		h.logger.Err.Printf("marshal error: %v\n", err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Answer: "))
-	w.Write([]byte(strconv.Itoa(order.Answer)))
+	w.Write(b)
 }
 
 func (h Handler) getUsersTasks(w http.ResponseWriter, r *http.Request) {
@@ -89,12 +102,41 @@ func (h Handler) getUsersTasks(w http.ResponseWriter, r *http.Request) {
 	b, err := json.Marshal(orders)
 	if err != nil {
 		h.logger.Err.Printf("marshal error: %v\n", err.Error())
-		http.Error(w, "message: wrong input data", http.StatusBadRequest)
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fmt.Sprintf("page №%d:\n", pageNum)))
+	w.Write(b)
+}
+
+func (h Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
+	username := chi.URLParam(r, "username")
+
+	err := h.controller.DeleteUser(username)
+	if err != nil {
+		h.logger.Err.Printf("cant delete user %s: %v\n", username, err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	err = h.grpcCli.DeleteOrdersForUser(username)
+	if err != nil {
+		h.logger.Err.Printf("cant delete orders for user %s: %v\n", username, err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	b, err := json.Marshal(model.ResponseMessage{Message: "success delete"})
+	if err != nil {
+		h.logger.Err.Printf("marshal error: %v\n", err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	w.Write(b)
 }
 
@@ -122,18 +164,22 @@ func (h Handler) updateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
-}
-
-func (h Handler) getInfo(w http.ResponseWriter, r *http.Request) {
-	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
-	if !ok {
-		h.logger.Err.Println("cant get data from context")
+	b, err = json.Marshal(model.ResponseMessage{Message: "success update"})
+	if err != nil {
+		h.logger.Err.Printf("marshal error: %v\n", err.Error())
 		http.Error(w, "message: some server error", http.StatusInternalServerError)
 		return
 	}
 
-	user, err := h.controller.GetUser(u.Username)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(b)
+}
+
+func (h Handler) getInfo(w http.ResponseWriter, r *http.Request) {
+	username := chi.URLParam(r, "username")
+
+	user, err := h.controller.GetUser(username)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
 		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
@@ -143,7 +189,7 @@ func (h Handler) getInfo(w http.ResponseWriter, r *http.Request) {
 	b, err := json.Marshal(user.User.Info)
 	if err != nil {
 		h.logger.Err.Printf("marshal error: %v\n", err.Error())
-		http.Error(w, "message: wrong input data", http.StatusBadRequest)
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
 		return
 	}
 

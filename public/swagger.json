@@ -179,9 +179,71 @@
             "$ref": "#/responses/StatusBadRequest"
           }
         }
+      },
+      "delete": {
+        "security": [
+          {
+            "Bearer": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "user"
+        ],
+        "summary": "Удаление пользователя.",
+        "operationId": "DeleteUserRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "name": "username",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/DeleteUserResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
       }
     },
     "/users/{username}/orders": {
+      "get": {
+        "security": [
+          {
+            "Bearer": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin: Получение всех доступных задач.",
+        "operationId": "GetAllTasksRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "name": "username",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetAllTasksResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
+      },
       "post": {
         "security": [
           {
@@ -191,7 +253,166 @@
           }
         ],
         "tags": [
-          "auth"
+          "orders"
+        ],
+        "summary": "Заказ решения для задачи.",
+        "operationId": "OrderTaskRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "TaskId",
+            "description": "id заказываемого задания",
+            "name": "taskId",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/OrderTaskResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
+      }
+    },
+    "/users/{username}/orders/edit": {
+      "put": {
+        "security": [
+          {
+            "Bearer": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin: Изменение цены для задачи.",
+        "operationId": "UpdateBalanceRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateReuqest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/UpdateBalanceResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "Bearer": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin: Создание новой задачи.",
+        "operationId": "CreateTaskRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "Body",
+            "name": "task",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Task"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/CreateTaskResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
+      }
+    },
+    "/users/{username}/orders/edit/{taskId}": {
+      "delete": {
+        "security": [
+          {
+            "Bearer": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin: Удаление задачи.",
+        "operationId": "DeleteTaskRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "TaskId",
+            "name": "taskId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/DeleteTaskResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
+      }
+    },
+    "/users/{username}/orders/{page}": {
+      "get": {
+        "security": [
+          {
+            "Bearer": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "orders"
         ],
         "summary": "Получение заказов пользователя.",
         "operationId": "GetUsersOrdersRequest",
@@ -238,9 +459,24 @@
       },
       "x-go-package": "userService/internal/model"
     },
+    "ResponseMessage": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "userService/internal/model"
+    },
     "Task": {
       "type": "object",
       "properties": {
+        "answer": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Answer"
+        },
         "count": {
           "type": "integer",
           "format": "int64",
@@ -266,6 +502,33 @@
         }
       },
       "x-go-package": "userService/internal/model"
+    },
+    "TaskAnswer": {
+      "type": "object",
+      "properties": {
+        "answer": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Answer"
+        }
+      },
+      "x-go-package": "userService/internal/model"
+    },
+    "UpdateReuqest": {
+      "type": "object",
+      "properties": {
+        "balance": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "NewBalance"
+        },
+        "taskId": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TaskId"
+        }
+      },
+      "x-go-package": "userService/internal/transport/rest"
     },
     "UserAuth": {
       "type": "object",
@@ -388,6 +651,33 @@
     }
   },
   "responses": {
+    "CreateTaskResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/ResponseMessage"
+      }
+    },
+    "DeleteTaskResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/ResponseMessage"
+      }
+    },
+    "DeleteUserResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/ResponseMessage"
+      }
+    },
+    "GetAllTasksResponse": {
+      "description": "",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Task"
+        }
+      }
+    },
     "GetUsersOrdersResponse": {
       "description": "",
       "schema": {
@@ -403,6 +693,12 @@
         "$ref": "#/definitions/AuthInfo"
       }
     },
+    "OrderTaskResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/TaskAnswer"
+      }
+    },
     "RefreshResponse": {
       "description": "",
       "schema": {
@@ -410,10 +706,19 @@
       }
     },
     "RegisterResponse": {
-      "description": ""
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/ResponseMessage"
+      }
     },
     "StatusBadRequest": {
       "description": "Bad Request replys an error of API calling."
+    },
+    "UpdateBalanceResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/ResponseMessage"
+      }
     },
     "UserInfoResponse": {
       "description": "",
@@ -433,7 +738,7 @@
     "updateuserResponse": {
       "description": "",
       "schema": {
-        "$ref": "#/definitions/UserInfo"
+        "$ref": "#/definitions/ResponseMessage"
       }
     }
   },

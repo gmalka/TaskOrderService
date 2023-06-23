@@ -11,6 +11,9 @@ service TaskOrderService {
     rpc buyTaskAnswer(UserBuyAnswer) returns (None);
     rpc createNewTask(Task) returns (None);
     rpc updatePriceOfTask(TaskForUpdate) returns (None);
+    rpc deleteOrdersForUser(UserId) returns (None);
+    rpc deleteTask(OrderTask) returns (None);
+
     rpc ping(None) returns (None);
 }
 
@@ -28,6 +31,10 @@ message TaskForUpdate {
 
 message OrderTask {
     int64 id = 1;
+}
+
+message UserId {
+    string username = 1;
 }
 
 message TaskOrderInfo {

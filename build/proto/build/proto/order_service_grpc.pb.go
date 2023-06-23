@@ -19,13 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	TaskOrderService_GetOrdersForUser_FullMethodName  = "/proto.TaskOrderService/getOrdersForUser"
-	TaskOrderService_GetAllTasks_FullMethodName       = "/proto.TaskOrderService/getAllTasks"
-	TaskOrderService_GetTask_FullMethodName           = "/proto.TaskOrderService/getTask"
-	TaskOrderService_BuyTaskAnswer_FullMethodName     = "/proto.TaskOrderService/buyTaskAnswer"
-	TaskOrderService_CreateNewTask_FullMethodName     = "/proto.TaskOrderService/createNewTask"
-	TaskOrderService_UpdatePriceOfTask_FullMethodName = "/proto.TaskOrderService/updatePriceOfTask"
-	TaskOrderService_Ping_FullMethodName              = "/proto.TaskOrderService/ping"
+	TaskOrderService_GetOrdersForUser_FullMethodName    = "/proto.TaskOrderService/getOrdersForUser"
+	TaskOrderService_GetAllTasks_FullMethodName         = "/proto.TaskOrderService/getAllTasks"
+	TaskOrderService_GetTask_FullMethodName             = "/proto.TaskOrderService/getTask"
+	TaskOrderService_BuyTaskAnswer_FullMethodName       = "/proto.TaskOrderService/buyTaskAnswer"
+	TaskOrderService_CreateNewTask_FullMethodName       = "/proto.TaskOrderService/createNewTask"
+	TaskOrderService_UpdatePriceOfTask_FullMethodName   = "/proto.TaskOrderService/updatePriceOfTask"
+	TaskOrderService_DeleteOrdersForUser_FullMethodName = "/proto.TaskOrderService/deleteOrdersForUser"
+	TaskOrderService_DeleteTask_FullMethodName          = "/proto.TaskOrderService/deleteTask"
+	TaskOrderService_Ping_FullMethodName                = "/proto.TaskOrderService/ping"
 )
 
 // TaskOrderServiceClient is the client API for TaskOrderService service.
@@ -38,6 +40,8 @@ type TaskOrderServiceClient interface {
 	BuyTaskAnswer(ctx context.Context, in *UserBuyAnswer, opts ...grpc.CallOption) (*None, error)
 	CreateNewTask(ctx context.Context, in *Task, opts ...grpc.CallOption) (*None, error)
 	UpdatePriceOfTask(ctx context.Context, in *TaskForUpdate, opts ...grpc.CallOption) (*None, error)
+	DeleteOrdersForUser(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*None, error)
+	DeleteTask(ctx context.Context, in *OrderTask, opts ...grpc.CallOption) (*None, error)
 	Ping(ctx context.Context, in *None, opts ...grpc.CallOption) (*None, error)
 }
 
@@ -149,6 +153,24 @@ func (c *taskOrderServiceClient) UpdatePriceOfTask(ctx context.Context, in *Task
 	return out, nil
 }
 
+func (c *taskOrderServiceClient) DeleteOrdersForUser(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*None, error) {
+	out := new(None)
+	err := c.cc.Invoke(ctx, TaskOrderService_DeleteOrdersForUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *taskOrderServiceClient) DeleteTask(ctx context.Context, in *OrderTask, opts ...grpc.CallOption) (*None, error) {
+	out := new(None)
+	err := c.cc.Invoke(ctx, TaskOrderService_DeleteTask_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *taskOrderServiceClient) Ping(ctx context.Context, in *None, opts ...grpc.CallOption) (*None, error) {
 	out := new(None)
 	err := c.cc.Invoke(ctx, TaskOrderService_Ping_FullMethodName, in, out, opts...)
@@ -168,6 +190,8 @@ type TaskOrderServiceServer interface {
 	BuyTaskAnswer(context.Context, *UserBuyAnswer) (*None, error)
 	CreateNewTask(context.Context, *Task) (*None, error)
 	UpdatePriceOfTask(context.Context, *TaskForUpdate) (*None, error)
+	DeleteOrdersForUser(context.Context, *UserId) (*None, error)
+	DeleteTask(context.Context, *OrderTask) (*None, error)
 	Ping(context.Context, *None) (*None, error)
 	mustEmbedUnimplementedTaskOrderServiceServer()
 }
@@ -193,6 +217,12 @@ func (UnimplementedTaskOrderServiceServer) CreateNewTask(context.Context, *Task)
 }
 func (UnimplementedTaskOrderServiceServer) UpdatePriceOfTask(context.Context, *TaskForUpdate) (*None, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePriceOfTask not implemented")
+}
+func (UnimplementedTaskOrderServiceServer) DeleteOrdersForUser(context.Context, *UserId) (*None, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteOrdersForUser not implemented")
+}
+func (UnimplementedTaskOrderServiceServer) DeleteTask(context.Context, *OrderTask) (*None, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTask not implemented")
 }
 func (UnimplementedTaskOrderServiceServer) Ping(context.Context, *None) (*None, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
@@ -324,6 +354,42 @@ func _TaskOrderService_UpdatePriceOfTask_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TaskOrderService_DeleteOrdersForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskOrderServiceServer).DeleteOrdersForUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskOrderService_DeleteOrdersForUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskOrderServiceServer).DeleteOrdersForUser(ctx, req.(*UserId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TaskOrderService_DeleteTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrderTask)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskOrderServiceServer).DeleteTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskOrderService_DeleteTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskOrderServiceServer).DeleteTask(ctx, req.(*OrderTask))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TaskOrderService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(None)
 	if err := dec(in); err != nil {
@@ -364,6 +430,14 @@ var TaskOrderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "updatePriceOfTask",
 			Handler:    _TaskOrderService_UpdatePriceOfTask_Handler,
+		},
+		{
+			MethodName: "deleteOrdersForUser",
+			Handler:    _TaskOrderService_DeleteOrdersForUser_Handler,
+		},
+		{
+			MethodName: "deleteTask",
+			Handler:    _TaskOrderService_DeleteTask_Handler,
 		},
 		{
 			MethodName: "ping",

@@ -29,6 +29,26 @@ type StatusBadRequest struct {
 	Message string `json:"message"`
 }
 
+// swagger:route DELETE /users/{username} user DeleteUserRequest
+// Удаление пользователя.
+// security:
+//   - Bearer: []
+// responses:
+//   200: DeleteUserResponse
+//   400: StatusBadRequest
+
+// swagger:parameters DeleteUserRequest
+type DeleteUserRequest struct {
+	// in:path
+	Username string `json:"username"`
+}
+
+// swagger:response DeleteUserResponse
+type DeleteUserResponse struct {
+	// in:body
+	Body model.ResponseMessage
+}
+
 // swagger:route PUT /users/{username} user UpdateuserRequest
 // Обновление информации о пользователе.
 // security:
@@ -50,7 +70,7 @@ type updateuserResponse struct {
 	// информация о пользователе
 	//
 	// in:body
-	Body model.UserInfo `json:"userInfo"`
+	Body model.ResponseMessage
 }
 
 // swagger:route GET /users/{username} user GetUserInfoRequest

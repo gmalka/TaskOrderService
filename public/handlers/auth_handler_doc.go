@@ -36,7 +36,7 @@ type RegisterRequest struct {
 // swagger:response RegisterResponse
 type RegisterResponse struct {
 	// in:body
-	Body string `json:"message"`
+	Body model.ResponseMessage
 }
 
 // swagger:route POST /auth/login auth LoginRequest

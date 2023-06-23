@@ -13,3 +13,7 @@ type Task struct {
 	Price   int     `db:"price" json:"price"`
 	Answer  int     `db:"price" json:"answer"`
 }
+
+type TaskAnswer struct {
+	Answer int `json:"answer"`
+}

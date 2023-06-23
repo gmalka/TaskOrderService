@@ -18,6 +18,8 @@ type RemoteOrderService interface {
 	BuyTaskAnswer(username string, taskId int) error
 	GetAllTasks() ([]model.Task, error)
 	GetOrdersForUser(username string, page int) ([]model.Task, error)
+	DeleteOrdersForUser(username string) error
+	DeleteTask(taskId int) error
 }
 
 type grpcClient struct {
@@ -42,6 +44,28 @@ func NewGrpcClient(ip, port string) (RemoteOrderService, error) {
 	}*/
 
 	return grpcClient{client: client}, nil
+}
+
+func (g grpcClient) DeleteTask(taskId int) error {
+	_, err := g.client.DeleteTask(context.Background(), &proto.OrderTask{
+		Id: int64(taskId),
+	})
+	if err != nil {
+		return fmt.Errorf("can't delete task %d: %v", taskId, err)
+	}
+
+	return nil
+}
+
+func (g grpcClient) DeleteOrdersForUser(username string) error {
+	_, err := g.client.DeleteOrdersForUser(context.Background(), &proto.UserId{
+		Username: username,
+	})
+	if err != nil {
+		return fmt.Errorf("can't delete orders for user %s: %v", username, err)
+	}
+
+	return nil
 }
 
 func (g grpcClient) BuyTaskAnswer(username string, taskId int) error {
