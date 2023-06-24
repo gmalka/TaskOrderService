@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"embed"
 	"html/template"
 	"log"
 	"net/http"
@@ -54,8 +53,6 @@ const (
 </html>
 `
 )
-
-var content embed.FS
 
 type Log struct {
 	Err *log.Logger

@@ -22,7 +22,7 @@ func (h Handler) getAllTasks(w http.ResponseWriter, r *http.Request) {
 	tasks, err := h.grpcCli.GetAllTasks()
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
 
@@ -70,8 +70,8 @@ func (h Handler) updateUserBalance(w http.ResponseWriter, r *http.Request) {
 
 	err = h.controller.UpdateBalance(change.Username, change.Money)
 	if err != nil {
-		h.logger.Err.Printf("can't change balance for user %s: %v\n", change.Username, err.Error())
-		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		h.logger.Err.Println(err.Error())
+		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
 
@@ -148,8 +148,8 @@ func (h Handler) deleteTask(w http.ResponseWriter, r *http.Request) {
 
 	err = h.grpcCli.DeleteTask(id)
 	if err != nil {
-		h.logger.Err.Printf("can't delete task %d: %v", id, err)
-		http.Error(w, "message: can't delete task", http.StatusInternalServerError)
+		h.logger.Err.Println(err.Error())
+		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
 

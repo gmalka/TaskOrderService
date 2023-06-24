@@ -116,15 +116,15 @@ func (h Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 
 	err := h.controller.DeleteUser(username)
 	if err != nil {
-		h.logger.Err.Printf("cant delete user %s: %v\n", username, err.Error())
-		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		h.logger.Err.Println(err.Error())
+		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
 
 	err = h.grpcCli.DeleteOrdersForUser(username)
 	if err != nil {
-		h.logger.Err.Printf("cant delete orders for user %s: %v\n", username, err.Error())
-		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		h.logger.Err.Println(err.Error())
+		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
 
