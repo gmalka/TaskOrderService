@@ -360,6 +360,44 @@
             "$ref": "#/responses/StatusBadRequest"
           }
         }
+      },
+      "patch": {
+        "security": [
+          {
+            "Bearer": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin: Изменение баланса пользователя.",
+        "operationId": "ChangeBalanceRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/BalanceChange"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ChangeBalanceResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
       }
     },
     "/users/{username}/orders/edit/{taskId}": {
@@ -455,6 +493,21 @@
         "Refresh": {
           "type": "string",
           "x-go-name": "Access"
+        }
+      },
+      "x-go-package": "userService/internal/model"
+    },
+    "BalanceChange": {
+      "type": "object",
+      "properties": {
+        "money": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Money"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
         }
       },
       "x-go-package": "userService/internal/model"
@@ -651,6 +704,12 @@
     }
   },
   "responses": {
+    "ChangeBalanceResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/ResponseMessage"
+      }
+    },
     "CreateTaskResponse": {
       "description": "",
       "schema": {

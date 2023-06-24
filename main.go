@@ -79,3 +79,9 @@ func RunServer(addr string, h http.Handler, log rest.Log) {
 	srv.Shutdown(ctx)
 	log.Inf.Println("Server exited")
 }
+
+/*
+protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative build/proto/order_service.proto
+
+swagger generate spec -o public/swagger.json --scan-models
+*/

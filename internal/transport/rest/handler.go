@@ -102,6 +102,7 @@ func (h Handler) InitRouter() http.Handler {
 				r.Post("/", h.tryToOrderTask)
 
 				r.Get("/", h.getAllTasks)
+				r.Patch("/", h.updateUserBalance)
 				r.Put("/edit", h.updateTask)
 				r.Post("/edit", h.createTask)
 				r.Delete("/edit/{taskId}", h.deleteTask)

@@ -13,12 +13,17 @@ type postgresService struct {
 	db *sqlx.DB
 }
 
-const (
-	ORDERS_PER_ROW = 10
-)
-
 func NewPostgresService(db *sqlx.DB) database.DatabaseService {
 	return postgresService{db: db}
+}
+
+func (p postgresService) UpdateBalance(username string, change int) error {
+	_, err := p.db.Exec("UPDATE users SET balance=balance+$1 WHERE username=$2", username, change)
+	if err != nil {
+		return fmt.Errorf("can't update users balance %s: %v", username, err)
+	}
+
+	return nil
 }
 
 func (p postgresService) TryToBuyTask(username string, price int) (error) {

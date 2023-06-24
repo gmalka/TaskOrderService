@@ -17,3 +17,8 @@ type Task struct {
 type TaskAnswer struct {
 	Answer int `json:"answer"`
 }
+
+type BalanceChange struct {
+	Username string `json:"username"`
+	Money    int    `json:"money"`
+}

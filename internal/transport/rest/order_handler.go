@@ -38,6 +38,55 @@ func (h Handler) getAllTasks(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
+func (h Handler) updateUserBalance(w http.ResponseWriter, r *http.Request) {
+	var change model.BalanceChange
+
+	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
+	if !ok {
+		h.logger.Err.Println("cant get data from context")
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	if u.Role != usercontroller.ADMIN_ROLE {
+		h.logger.Err.Printf("permission denied for user %s\n", u.Username)
+		http.Error(w, "message: permission denied", http.StatusForbidden)
+		return
+	}
+
+	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		h.logger.Err.Printf("cant read body: %v\n", err.Error())
+		http.Error(w, "message: some parse error", http.StatusInternalServerError)
+		return
+	}
+
+	err = json.Unmarshal(b, &change)
+	if err != nil {
+		h.logger.Err.Printf("unmarshal error: %v\n", err.Error())
+		http.Error(w, "message: wrong input data", http.StatusBadRequest)
+		return
+	}
+
+	err = h.controller.UpdateBalance(change.Username, change.Money)
+	if err != nil {
+		h.logger.Err.Printf("can't change balance for user %s: %v\n", change.Username, err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	b, err = json.Marshal(model.ResponseMessage{Message: "success balance change"})
+	if err != nil {
+		h.logger.Err.Printf("marshal error: %v\n", err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(b)
+}
+
 func (h Handler) updateTask(w http.ResponseWriter, r *http.Request) {
 	var update UpdateReuqest
 

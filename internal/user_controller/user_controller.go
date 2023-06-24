@@ -17,6 +17,7 @@ type Controller interface {
 	TryToBuyTask(username string, price int) (error)
 	DeleteUser(username string) error
 	UpdateUser(user model.UserForUpdate) error
+	UpdateBalance(username string, change int) error
 }
 
 type userController struct {
@@ -27,6 +28,10 @@ func NewUserController(db database.DatabaseService) Controller {
 	return userController{
 		db: db,
 	}
+}
+
+func (u userController) UpdateBalance(username string, change int) error {
+	return u.db.UpdateBalance(username, change)
 }
 
 func (u userController) CreateUser(user model.User) error {

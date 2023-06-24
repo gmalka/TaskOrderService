@@ -27,6 +27,28 @@ type CreateTaskResponse struct {
 	Message model.ResponseMessage
 }
 
+// swagger:route PATCH /users/{username}/orders/edit admin ChangeBalanceRequest
+// Admin: Изменение баланса пользователя.
+// security:
+//   - Bearer: []
+// responses:
+//   200: ChangeBalanceResponse
+//   400: StatusBadRequest
+
+// swagger:parameters ChangeBalanceRequest
+type ChangeBalanceRequest struct {
+	// in:path
+	Username string `json:"username"`
+	// in:body
+	Body model.BalanceChange
+}
+
+// swagger:response ChangeBalanceResponse
+type ChangeBalanceResponse struct {
+	// in:body
+	Message model.ResponseMessage
+}
+
 // swagger:route DELETE /users/{username}/orders/edit/{taskId} admin DeleteTaskRequest
 // Admin: Удаление задачи.
 // security:
