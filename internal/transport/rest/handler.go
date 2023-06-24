@@ -65,11 +65,11 @@ type Log struct {
 type Handler struct {
 	controller   usercontroller.Controller
 	tokenManager auth.TokenManager
-	grpcCli      grpc.RemoteOrderService
+	grpcCli      grpc.RemoteOrderClient
 	logger       Log
 }
 
-func NewHandler(controller usercontroller.Controller, tokenManager auth.TokenManager, grpcCli grpc.RemoteOrderService, logger Log) Handler {
+func NewHandler(controller usercontroller.Controller, tokenManager auth.TokenManager, grpcCli grpc.RemoteOrderClient, logger Log) Handler {
 	return Handler{controller: controller, tokenManager: tokenManager, grpcCli: grpcCli, logger: logger}
 }
 
