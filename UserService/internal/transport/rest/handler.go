@@ -94,17 +94,17 @@ func (h Handler) InitRouter() http.Handler {
 			r.Get("/", h.getInfo)
 			r.Put("/", h.updateUser)
 			r.Delete("/", h.deleteUser)
+			r.Post("/", h.tryToOrderTask)
 
 			r.Patch("/", h.updateUserBalance)
 
 			r.Route("/orders", func(r chi.Router) {
 				r.Get("/purchased/{page:^(|0|[1-9][0-9]*)$}", h.getUsersTasks)
-				r.Post("/", h.tryToOrderTask)
 
 				r.Get("/", h.getAllTasks)
-				r.Put("/edit", h.updateTask)
-				r.Post("/edit", h.createTask)
-				r.Delete("/edit/{taskId}", h.deleteTask)
+				r.Put("/", h.updateTask)
+				r.Post("/", h.createTask)
+				r.Delete("/{taskId}", h.deleteTask)
 			})
 		})
 	})

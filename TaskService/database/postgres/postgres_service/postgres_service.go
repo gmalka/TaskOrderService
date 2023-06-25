@@ -1,6 +1,7 @@
 package postgresservice
 
 import (
+	"database/sql"
 	"fmt"
 	"taskServer/database"
 	"taskServer/model"
@@ -76,8 +77,11 @@ func (p postgresService) CreateTask(task model.Task) error {
 func (p postgresService) CheckAndGetTask(username string, id int) (model.Task, error) {
 	var task model.Task
 
-	err := p.db.QueryRow("SELECT id,quantity,heights,price,answer FROM tasks LEFT JOIN userOrders ON tasks.id=userOrders.orderId WHERE id=$1 AND (username!=$2 OR username IS NULL)",
+	err := p.db.QueryRow("SELECT id,quantity,heights,price,answer FROM tasks LEFT JOIN userOrders ON tasks.id=userOrders.orderId WHERE id=$1 AND NOT EXISTS (SELECT 1 FROM userOrders WHERE orderId = $1 AND username = $2);",
 		id, username).Scan(&task.Id, &task.Count, (*pq.Int64Array)(&task.Heights), &task.Price, &task.Answer)
+	if err == sql.ErrNoRows {
+		return task, fmt.Errorf("the job has already been purchased by this user\n")
+	}
 	if err != nil {
 		return task, fmt.Errorf("can't get for task %d: %s", id, err)
 	}

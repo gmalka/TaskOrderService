@@ -5,7 +5,7 @@ import (
 	"userService/internal/transport/rest"
 )
 
-// swagger:route POST /users/{username}/orders/edit admin CreateTaskRequest
+// swagger:route POST /users/{username}/orders admin CreateTaskRequest
 // Admin: Создание новой задачи.
 // security:
 //   - Bearer: []
@@ -49,7 +49,7 @@ type ChangeBalanceResponse struct {
 	Message model.ResponseMessage
 }
 
-// swagger:route DELETE /users/{username}/orders/edit/{taskId} admin DeleteTaskRequest
+// swagger:route DELETE /users/{username}/orders/{taskId} admin DeleteTaskRequest
 // Admin: Удаление задачи.
 // security:
 //   - Bearer: []
@@ -71,7 +71,7 @@ type DeleteTaskResponse struct {
 	Message model.ResponseMessage
 }
 
-// swagger:route PUT /users/{username}/orders/edit admin UpdateBalanceRequest
+// swagger:route PUT /users/{username}/orders admin UpdateBalanceRequest
 // Admin: Изменение цены для задачи.
 // security:
 //   - Bearer: []

@@ -129,14 +129,14 @@ func (h Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.controller.DeleteUser(username)
+	err := h.grpcCli.DeleteOrdersForUser(username)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
 		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	err = h.grpcCli.DeleteOrdersForUser(username)
+	err = h.controller.DeleteUser(username)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
 		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)

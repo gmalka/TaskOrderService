@@ -207,6 +207,44 @@
           }
         }
       },
+      "post": {
+        "security": [
+          {
+            "Bearer": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "user"
+        ],
+        "summary": "Заказ решения для задачи.",
+        "operationId": "OrderTaskRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "TaskId",
+            "description": "id заказываемого задания",
+            "name": "taskId",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/OrderTaskResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
+      },
       "delete": {
         "security": [
           {
@@ -309,46 +347,6 @@
           }
         }
       },
-      "post": {
-        "security": [
-          {
-            "Bearer": [
-              "[]"
-            ]
-          }
-        ],
-        "tags": [
-          "orders"
-        ],
-        "summary": "Заказ решения для задачи.",
-        "operationId": "OrderTaskRequest",
-        "parameters": [
-          {
-            "type": "string",
-            "x-go-name": "Username",
-            "name": "username",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "x-go-name": "TaskId",
-            "description": "id заказываемого задания",
-            "name": "taskId",
-            "in": "header"
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/responses/OrderTaskResponse"
-          },
-          "400": {
-            "$ref": "#/responses/StatusBadRequest"
-          }
-        }
-      }
-    },
-    "/users/{username}/orders/edit": {
       "put": {
         "security": [
           {
@@ -427,46 +425,6 @@
         }
       }
     },
-    "/users/{username}/orders/edit/{taskId}": {
-      "delete": {
-        "security": [
-          {
-            "Bearer": [
-              "[]"
-            ]
-          }
-        ],
-        "tags": [
-          "admin"
-        ],
-        "summary": "Admin: Удаление задачи.",
-        "operationId": "DeleteTaskRequest",
-        "parameters": [
-          {
-            "type": "string",
-            "x-go-name": "Username",
-            "name": "username",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "x-go-name": "TaskId",
-            "name": "taskId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/responses/DeleteTaskResponse"
-          },
-          "400": {
-            "$ref": "#/responses/StatusBadRequest"
-          }
-        }
-      }
-    },
     "/users/{username}/orders/purchased/{page}": {
       "get": {
         "security": [
@@ -501,6 +459,46 @@
         "responses": {
           "200": {
             "$ref": "#/responses/GetUsersOrdersResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
+      }
+    },
+    "/users/{username}/orders/{taskId}": {
+      "delete": {
+        "security": [
+          {
+            "Bearer": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin: Удаление задачи.",
+        "operationId": "DeleteTaskRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "TaskId",
+            "name": "taskId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/DeleteTaskResponse"
           },
           "400": {
             "$ref": "#/responses/StatusBadRequest"
