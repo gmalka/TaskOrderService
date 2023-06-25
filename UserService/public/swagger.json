@@ -92,6 +92,33 @@
         }
       }
     },
+    "/tasks/{page}": {
+      "get": {
+        "tags": [
+          "orders"
+        ],
+        "summary": "Получение всех задач без ответов.",
+        "operationId": "GetAllWithoutAnswersRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Pahe",
+            "description": "id заказываемого задания",
+            "name": "page",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetAllWithoutAnswersResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
+      }
+    },
     "/users": {
       "get": {
         "tags": [
@@ -153,7 +180,7 @@
           "user"
         ],
         "summary": "Обновление информации о пользователе.",
-        "operationId": "UpdateuserRequest",
+        "operationId": "UpdateUserRequest",
         "parameters": [
           {
             "type": "string",
@@ -440,7 +467,7 @@
         }
       }
     },
-    "/users/{username}/orders/{page}": {
+    "/users/{username}/orders/purchased/{page}": {
       "get": {
         "security": [
           {
@@ -563,6 +590,35 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "Answer"
+        }
+      },
+      "x-go-package": "userService/internal/model"
+    },
+    "TaskWithoutAnswer": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Count"
+        },
+        "heights": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "x-go-name": "Heights"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Id"
+        },
+        "price": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Price"
         }
       },
       "x-go-package": "userService/internal/model"
@@ -734,6 +790,15 @@
         "type": "array",
         "items": {
           "$ref": "#/definitions/Task"
+        }
+      }
+    },
+    "GetAllWithoutAnswersResponse": {
+      "description": "",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/TaskWithoutAnswer"
         }
       }
     },

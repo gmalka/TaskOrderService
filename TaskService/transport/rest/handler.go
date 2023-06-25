@@ -216,7 +216,7 @@ func (h Handler) getTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.controller.GetTask(id)
+	task, err := h.controller.CheckAndGetTask("", id)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
 		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)

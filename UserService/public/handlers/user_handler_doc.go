@@ -49,7 +49,7 @@ type DeleteUserResponse struct {
 	Body model.ResponseMessage
 }
 
-// swagger:route PUT /users/{username} user UpdateuserRequest
+// swagger:route PUT /users/{username} user UpdateUserRequest
 // Обновление информации о пользователе.
 // security:
 //   - Bearer: []
@@ -57,8 +57,8 @@ type DeleteUserResponse struct {
 //   200: updateuserResponse
 //   400: StatusBadRequest
 
-// swagger:parameters UpdateuserRequest
-type UpdateuserRequest struct {
+// swagger:parameters UpdateUserRequest
+type UpdateUserRequest struct {
 	// in:path
 	Username string `json:"username"`
 	// in:body

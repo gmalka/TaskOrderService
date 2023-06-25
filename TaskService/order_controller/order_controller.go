@@ -9,10 +9,11 @@ import (
 type Controller interface {
 	GetAllTasks() ([]model.Task, error)
 	CreateTask(task model.Task) error
-	GetTask(id int) (model.Task, error)
+	CheckAndGetTask(username string, id int) (model.Task, error)
 	ChangeTaskPrice(id int, price int) error
 	DeleteTask(id int) error
 	GetAllTasksOfUser(username string, page int) ([]model.Task, error)
+	GetAllTasksWithoutAnswers(page int) ([]model.TaskWithoutAnswer, error)
 	DeleteAllTasksOfUser(username string) error
 	BuyTaskAnswer(task model.UsersPurchase) error
 }
@@ -32,12 +33,16 @@ func (o orderController) GetAllTasks() ([]model.Task, error) {
 	return o.db.GetAllTasks()
 }
 
+func (o orderController) GetAllTasksWithoutAnswers(page int) ([]model.TaskWithoutAnswer, error) {
+	return o.db.GetAllTasksWithoutAnswers(page)
+}
+
 func (o orderController) CreateTask(task model.Task) error {
 	return o.db.CreateTask(task)
 }
 
-func (o orderController) GetTask(id int) (model.Task, error) {
-	return o.db.GetTask(id)
+func (o orderController) CheckAndGetTask(username string, id int) (model.Task, error) {
+	return o.db.CheckAndGetTask(username, id)
 }
 
 func (o orderController) ChangeTaskPrice(id int, price int) error {

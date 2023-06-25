@@ -123,6 +123,8 @@ func (h Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.logger.Inf.Println(user.Password)
+
 	err = h.controller.CreateUser(user)
 	if err != nil {
 		h.logger.Err.Println(err.Error())

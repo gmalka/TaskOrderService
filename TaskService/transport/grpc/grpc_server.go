@@ -39,6 +39,31 @@ func (g grpcServ) Ping(ctx context.Context, req *proto.None) (*proto.None, error
 	return &proto.None{}, nil
 }
 
+func (g grpcServ) GetAllTasksWithoutAnswers(req *proto.Page, stream proto.TaskOrderService_GetAllTasksWithoutAnswersServer) error {
+	data, err := g.bd.GetAllTasksWithoutAnswers(int(req.Page))
+	if err != nil {
+		return err
+	}
+
+	for _, s := range data {
+		select {
+		case <-stream.Context().Done():
+			return status.Error(codes.Canceled, "stream has ended")
+		default:
+			err := stream.SendMsg(&proto.Task{
+				Id:     int64(s.Id),
+				Count:  int64(s.Count),
+				Height: s.Heights,
+				Price:  int64(s.Price),
+			})
+			if err != nil {
+				return status.Error(codes.Canceled, err.Error())
+			}
+		}
+	}
+	return nil
+}
+
 func (g grpcServ) GetOrdersForUser(req *proto.UserOrders, stream proto.TaskOrderService_GetOrdersForUserServer) error {
 	data, err := g.bd.GetAllTasksOfUser(req.Username, int(req.Page))
 	if err != nil {
@@ -91,8 +116,8 @@ func (g grpcServ) GetAllTasks(req *proto.None, stream proto.TaskOrderService_Get
 	return nil
 }
 
-func (g grpcServ) GetTask(ctx context.Context, req *proto.OrderTask) (*proto.TaskOrderInfo, error) {
-	task, err := g.bd.GetTask(int(req.Id))
+func (g grpcServ) CheckAndGetTask(ctx context.Context, req *proto.UsernameAndId) (*proto.TaskOrderInfo, error) {
+	task, err := g.bd.CheckAndGetTask(req.Username, int(req.Id))
 
 	return &proto.TaskOrderInfo{
 		Answer: int64(task.Answer),
@@ -100,7 +125,7 @@ func (g grpcServ) GetTask(ctx context.Context, req *proto.OrderTask) (*proto.Tas
 	}, err
 }
 
-func (g grpcServ) BuyTaskAnswer(ctx context.Context, req *proto.UserBuyAnswer) (*proto.None, error) {
+func (g grpcServ) BuyTaskAnswer(ctx context.Context, req *proto.UsernameAndId) (*proto.None, error) {
 	err := g.bd.BuyTaskAnswer(model.UsersPurchase{
 		Username: req.Username,
 		OrderId:  int(req.Id),

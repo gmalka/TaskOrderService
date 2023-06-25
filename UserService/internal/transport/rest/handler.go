@@ -4,7 +4,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"time"
 	"userService/internal/auth"
 	"userService/internal/model"
@@ -85,6 +84,8 @@ func (h Handler) InitRouter() http.Handler {
 		})
 	})
 
+	r.Get("/tasks/{page:^(|0|[1-9][0-9]*)$}", h.getUsersTasksWithoutAnswer)
+
 	r.Route("/users", func(r chi.Router) {
 		r.Get("/", h.getUsersNicknames)
 
@@ -97,8 +98,7 @@ func (h Handler) InitRouter() http.Handler {
 			r.Patch("/", h.updateUserBalance)
 
 			r.Route("/orders", func(r chi.Router) {
-				r.Use(h.checkAccess)
-				r.Get("/{page:^(|[1-9][0-9]*)$}", h.getUsersTasks)
+				r.Get("/purchased/{page:^(|0|[1-9][0-9]*)$}", h.getUsersTasks)
 				r.Post("/", h.tryToOrderTask)
 
 				r.Get("/", h.getAllTasks)
@@ -118,7 +118,6 @@ func (h Handler) InitRouter() http.Handler {
 }
 
 func (h Handler) swaggerUI(w http.ResponseWriter, r *http.Request) {
-	h.logger.Inf.Println(os.Getwd())
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	tmpl, err := template.New("swagger").Parse(swaggerTemplate)
 	if err != nil {

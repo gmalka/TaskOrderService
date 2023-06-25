@@ -6,7 +6,9 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"userService/internal/auth"
 	"userService/internal/model"
+	usercontroller "userService/internal/user_controller"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -44,7 +46,7 @@ func (h Handler) tryToOrderTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	order, err := h.grpcCli.GetTask(id)
+	order, err := h.grpcCli.CheckAndGetTask(username, id)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
 		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
@@ -114,6 +116,19 @@ func (h Handler) getUsersTasks(w http.ResponseWriter, r *http.Request) {
 func (h Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 	username := chi.URLParam(r, "username")
 
+	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
+	if !ok {
+		h.logger.Err.Println("cant get data from context")
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	if u.Role == usercontroller.ADMIN_ROLE {
+		h.logger.Err.Printf("cant update admin %s\n", u.Username)
+		http.Error(w, "message: permission denied, can't update admin", http.StatusForbidden)
+		return
+	}
+
 	err := h.controller.DeleteUser(username)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
@@ -142,6 +157,19 @@ func (h Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 
 func (h Handler) updateUser(w http.ResponseWriter, r *http.Request) {
 	var user model.UserForUpdate
+
+	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
+	if !ok {
+		h.logger.Err.Println("cant get data from context")
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	if u.Role == usercontroller.ADMIN_ROLE {
+		h.logger.Err.Printf("cant update admin %s\n", u.Username)
+		http.Error(w, "message: permission denied, can't update admin", http.StatusForbidden)
+		return
+	}
 
 	b, err := io.ReadAll(r.Body)
 	if err != nil {

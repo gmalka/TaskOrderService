@@ -18,7 +18,7 @@ func NewPostgresService(db *sqlx.DB) database.DatabaseService {
 }
 
 func (p postgresService) UpdateBalance(username string, change int) error {
-	_, err := p.db.Exec("UPDATE users SET balance=balance+$1 WHERE username=$2", username, change)
+	_, err := p.db.Exec("UPDATE users SET balance=balance+$1 WHERE username=$2", change, username)
 	if err != nil {
 		return fmt.Errorf("can't update users balance %s: %v", username, err)
 	}

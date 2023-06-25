@@ -2,6 +2,27 @@ package handlers
 
 import "userService/internal/model"
 
+// swagger:route GET /tasks/{page} orders GetAllWithoutAnswersRequest
+// Получение всех задач без ответов.
+//
+// responses:
+//   200: GetAllWithoutAnswersResponse
+//   400: StatusBadRequest
+
+// swagger:parameters GetAllWithoutAnswersRequest
+type GetAllWithoutAnswersRequest struct {
+	// id заказываемого задания
+	//
+	// in:path
+	Pahe string `json:"page"`
+}
+
+// swagger:response GetAllWithoutAnswersResponse
+type GetAllWithoutAnswersResponse struct {
+	// in:body
+	Tasks []model.TaskWithoutAnswer `json:"tasks"`
+}
+
 // swagger:route POST /users/{username}/orders orders OrderTaskRequest
 // Заказ решения для задачи.
 // security:
@@ -27,7 +48,7 @@ type OrderTaskResponse struct {
 	Answer model.TaskAnswer `json:"answer"`
 }
 
-// swagger:route GET /users/{username}/orders/{page} orders GetUsersOrdersRequest
+// swagger:route GET /users/{username}/orders/purchased/{page} orders GetUsersOrdersRequest
 // Получение заказов пользователя.
 // security:
 //   - Bearer: []

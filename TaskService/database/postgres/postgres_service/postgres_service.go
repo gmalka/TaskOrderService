@@ -6,6 +6,7 @@ import (
 	"taskServer/model"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 const TASKS_PER_PAGE = 10
@@ -16,6 +17,29 @@ type postgresService struct {
 
 func NewPostgresService(db *sqlx.DB) database.DatabaseService {
 	return postgresService{db: db}
+}
+
+func (p postgresService) GetAllTasksWithoutAnswers(page int) ([]model.TaskWithoutAnswer, error) {
+	var tasks []model.TaskWithoutAnswer
+
+	result, err := p.db.Query("SELECT id,quantity,heights,price FROM tasks LIMIT $1 OFFSET $2", TASKS_PER_PAGE, (page-1)*TASKS_PER_PAGE)
+	if err != nil {
+		return nil, fmt.Errorf("can't get tasks: %s", err)
+	}
+
+	tasks = make([]model.TaskWithoutAnswer, 0, 10)
+
+	for result.Next() {
+		var task model.TaskWithoutAnswer
+
+		err = result.Scan(&task.Id, &task.Count, (*pq.Int64Array)(&task.Heights), &task.Price)
+		if err != nil {
+			return nil, fmt.Errorf("can't get tasks: %s", err)
+		}
+		tasks = append(tasks, task)
+	}
+
+	return tasks, nil
 }
 
 func (p postgresService) GetAllTasks() ([]model.Task, error) {
@@ -30,7 +54,7 @@ func (p postgresService) GetAllTasks() ([]model.Task, error) {
 	for result.Next() {
 		var task model.Task
 
-		err = result.Scan(&task)
+		err = result.Scan(&task.Id, &task.Count, (*pq.Int64Array)(&task.Heights), &task.Price, &task.Answer)
 		if err != nil {
 			return nil, fmt.Errorf("can't get tasks: %s", err)
 		}
@@ -41,7 +65,7 @@ func (p postgresService) GetAllTasks() ([]model.Task, error) {
 }
 
 func (p postgresService) CreateTask(task model.Task) error {
-	_, err := p.db.Exec("INSERT INTO tasks(count,heights,price,answer) VALUES($1,$2,$3,$4)", task.Count, task.Heights, task.Price, task.Answer)
+	_, err := p.db.Exec("INSERT INTO tasks(quantity,heights,price,answer) VALUES($1,$2,$3,$4)", task.Count, pq.Array(task.Heights), task.Price, task.Answer)
 	if err != nil {
 		return fmt.Errorf("can't create task: %s", err)
 	}
@@ -49,10 +73,11 @@ func (p postgresService) CreateTask(task model.Task) error {
 	return nil
 }
 
-func (p postgresService) GetTask(id int) (model.Task, error) {
+func (p postgresService) CheckAndGetTask(username string, id int) (model.Task, error) {
 	var task model.Task
 
-	err := p.db.QueryRow("SELECT * FROM tasks WHERE id=$1", id).Scan(&task)
+	err := p.db.QueryRow("SELECT id,quantity,heights,price,answer FROM tasks LEFT JOIN userOrders ON tasks.id=userOrders.orderId WHERE id=$1 AND (username!=$2 OR username IS NULL)",
+		id, username).Scan(&task.Id, &task.Count, (*pq.Int64Array)(&task.Heights), &task.Price, &task.Answer)
 	if err != nil {
 		return task, fmt.Errorf("can't get for task %d: %s", id, err)
 	}
@@ -61,9 +86,13 @@ func (p postgresService) GetTask(id int) (model.Task, error) {
 }
 
 func (p postgresService) ChangeTaskPrice(id int, price int) error {
-	_, err := p.db.Exec("UPDATE tasks SET price=$1 WHERE id=$2", price, id)
+	res, err := p.db.Exec("UPDATE tasks SET price=$1 WHERE id=$2", price, id)
 	if err != nil {
 		return fmt.Errorf("can't set for task %d price to %d: %s", id, price, err)
+	}
+
+	if i, _ := res.RowsAffected(); i != 1 {
+		return fmt.Errorf("unknow task id: %d", id)
 	}
 
 	return nil
@@ -97,8 +126,8 @@ func (p postgresService) GetAllTasksOfUser(username string, page int) ([]model.T
 		page = 1
 	}
 
-	result, err := p.db.Query("SELECT id,count,heights,price,answer FROM userOrders LEFT JOIN orders ON tasks.id=userOrders.orderId WHERE userOrders.username=$1 LIMIT $2 OFFSET $3",
-		username, (page-1)*TASKS_PER_PAGE, TASKS_PER_PAGE)
+	result, err := p.db.Query("SELECT id,quantity,heights,price,answer FROM userOrders LEFT JOIN tasks ON tasks.id=userOrders.orderId WHERE userOrders.username=$1 LIMIT $2 OFFSET $3",
+		username, TASKS_PER_PAGE, (page-1)*TASKS_PER_PAGE)
 	if err != nil {
 		return nil, fmt.Errorf("can't get orders of user %s: %s", username, err)
 	}
@@ -108,7 +137,7 @@ func (p postgresService) GetAllTasksOfUser(username string, page int) ([]model.T
 	for result.Next() {
 		var task model.Task
 
-		err = result.Scan(&task)
+		err = result.Scan(&task.Id, &task.Count, (*pq.Int64Array)(&task.Heights), &task.Price, &task.Answer)
 		if err != nil {
 			return nil, fmt.Errorf("can't get orders of user %s: %s", username, err)
 		}

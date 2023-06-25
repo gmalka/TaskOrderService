@@ -19,15 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	TaskOrderService_GetOrdersForUser_FullMethodName    = "/proto.TaskOrderService/getOrdersForUser"
-	TaskOrderService_GetAllTasks_FullMethodName         = "/proto.TaskOrderService/getAllTasks"
-	TaskOrderService_GetTask_FullMethodName             = "/proto.TaskOrderService/getTask"
-	TaskOrderService_BuyTaskAnswer_FullMethodName       = "/proto.TaskOrderService/buyTaskAnswer"
-	TaskOrderService_CreateNewTask_FullMethodName       = "/proto.TaskOrderService/createNewTask"
-	TaskOrderService_UpdatePriceOfTask_FullMethodName   = "/proto.TaskOrderService/updatePriceOfTask"
-	TaskOrderService_DeleteOrdersForUser_FullMethodName = "/proto.TaskOrderService/deleteOrdersForUser"
-	TaskOrderService_DeleteTask_FullMethodName          = "/proto.TaskOrderService/deleteTask"
-	TaskOrderService_Ping_FullMethodName                = "/proto.TaskOrderService/ping"
+	TaskOrderService_GetOrdersForUser_FullMethodName          = "/proto.TaskOrderService/getOrdersForUser"
+	TaskOrderService_GetAllTasks_FullMethodName               = "/proto.TaskOrderService/getAllTasks"
+	TaskOrderService_GetAllTasksWithoutAnswers_FullMethodName = "/proto.TaskOrderService/getAllTasksWithoutAnswers"
+	TaskOrderService_CheckAndGetTask_FullMethodName           = "/proto.TaskOrderService/CheckAndGetTask"
+	TaskOrderService_BuyTaskAnswer_FullMethodName             = "/proto.TaskOrderService/buyTaskAnswer"
+	TaskOrderService_CreateNewTask_FullMethodName             = "/proto.TaskOrderService/createNewTask"
+	TaskOrderService_UpdatePriceOfTask_FullMethodName         = "/proto.TaskOrderService/updatePriceOfTask"
+	TaskOrderService_DeleteOrdersForUser_FullMethodName       = "/proto.TaskOrderService/deleteOrdersForUser"
+	TaskOrderService_DeleteTask_FullMethodName                = "/proto.TaskOrderService/deleteTask"
+	TaskOrderService_Ping_FullMethodName                      = "/proto.TaskOrderService/ping"
 )
 
 // TaskOrderServiceClient is the client API for TaskOrderService service.
@@ -36,8 +37,9 @@ const (
 type TaskOrderServiceClient interface {
 	GetOrdersForUser(ctx context.Context, in *UserOrders, opts ...grpc.CallOption) (TaskOrderService_GetOrdersForUserClient, error)
 	GetAllTasks(ctx context.Context, in *None, opts ...grpc.CallOption) (TaskOrderService_GetAllTasksClient, error)
-	GetTask(ctx context.Context, in *OrderTask, opts ...grpc.CallOption) (*TaskOrderInfo, error)
-	BuyTaskAnswer(ctx context.Context, in *UserBuyAnswer, opts ...grpc.CallOption) (*None, error)
+	GetAllTasksWithoutAnswers(ctx context.Context, in *Page, opts ...grpc.CallOption) (TaskOrderService_GetAllTasksWithoutAnswersClient, error)
+	CheckAndGetTask(ctx context.Context, in *UsernameAndId, opts ...grpc.CallOption) (*TaskOrderInfo, error)
+	BuyTaskAnswer(ctx context.Context, in *UsernameAndId, opts ...grpc.CallOption) (*None, error)
 	CreateNewTask(ctx context.Context, in *Task, opts ...grpc.CallOption) (*None, error)
 	UpdatePriceOfTask(ctx context.Context, in *TaskForUpdate, opts ...grpc.CallOption) (*None, error)
 	DeleteOrdersForUser(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*None, error)
@@ -117,16 +119,48 @@ func (x *taskOrderServiceGetAllTasksClient) Recv() (*Task, error) {
 	return m, nil
 }
 
-func (c *taskOrderServiceClient) GetTask(ctx context.Context, in *OrderTask, opts ...grpc.CallOption) (*TaskOrderInfo, error) {
+func (c *taskOrderServiceClient) GetAllTasksWithoutAnswers(ctx context.Context, in *Page, opts ...grpc.CallOption) (TaskOrderService_GetAllTasksWithoutAnswersClient, error) {
+	stream, err := c.cc.NewStream(ctx, &TaskOrderService_ServiceDesc.Streams[2], TaskOrderService_GetAllTasksWithoutAnswers_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &taskOrderServiceGetAllTasksWithoutAnswersClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type TaskOrderService_GetAllTasksWithoutAnswersClient interface {
+	Recv() (*TaskWithoutAnswer, error)
+	grpc.ClientStream
+}
+
+type taskOrderServiceGetAllTasksWithoutAnswersClient struct {
+	grpc.ClientStream
+}
+
+func (x *taskOrderServiceGetAllTasksWithoutAnswersClient) Recv() (*TaskWithoutAnswer, error) {
+	m := new(TaskWithoutAnswer)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *taskOrderServiceClient) CheckAndGetTask(ctx context.Context, in *UsernameAndId, opts ...grpc.CallOption) (*TaskOrderInfo, error) {
 	out := new(TaskOrderInfo)
-	err := c.cc.Invoke(ctx, TaskOrderService_GetTask_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TaskOrderService_CheckAndGetTask_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *taskOrderServiceClient) BuyTaskAnswer(ctx context.Context, in *UserBuyAnswer, opts ...grpc.CallOption) (*None, error) {
+func (c *taskOrderServiceClient) BuyTaskAnswer(ctx context.Context, in *UsernameAndId, opts ...grpc.CallOption) (*None, error) {
 	out := new(None)
 	err := c.cc.Invoke(ctx, TaskOrderService_BuyTaskAnswer_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -186,8 +220,9 @@ func (c *taskOrderServiceClient) Ping(ctx context.Context, in *None, opts ...grp
 type TaskOrderServiceServer interface {
 	GetOrdersForUser(*UserOrders, TaskOrderService_GetOrdersForUserServer) error
 	GetAllTasks(*None, TaskOrderService_GetAllTasksServer) error
-	GetTask(context.Context, *OrderTask) (*TaskOrderInfo, error)
-	BuyTaskAnswer(context.Context, *UserBuyAnswer) (*None, error)
+	GetAllTasksWithoutAnswers(*Page, TaskOrderService_GetAllTasksWithoutAnswersServer) error
+	CheckAndGetTask(context.Context, *UsernameAndId) (*TaskOrderInfo, error)
+	BuyTaskAnswer(context.Context, *UsernameAndId) (*None, error)
 	CreateNewTask(context.Context, *Task) (*None, error)
 	UpdatePriceOfTask(context.Context, *TaskForUpdate) (*None, error)
 	DeleteOrdersForUser(context.Context, *UserId) (*None, error)
@@ -206,10 +241,13 @@ func (UnimplementedTaskOrderServiceServer) GetOrdersForUser(*UserOrders, TaskOrd
 func (UnimplementedTaskOrderServiceServer) GetAllTasks(*None, TaskOrderService_GetAllTasksServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetAllTasks not implemented")
 }
-func (UnimplementedTaskOrderServiceServer) GetTask(context.Context, *OrderTask) (*TaskOrderInfo, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTask not implemented")
+func (UnimplementedTaskOrderServiceServer) GetAllTasksWithoutAnswers(*Page, TaskOrderService_GetAllTasksWithoutAnswersServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetAllTasksWithoutAnswers not implemented")
 }
-func (UnimplementedTaskOrderServiceServer) BuyTaskAnswer(context.Context, *UserBuyAnswer) (*None, error) {
+func (UnimplementedTaskOrderServiceServer) CheckAndGetTask(context.Context, *UsernameAndId) (*TaskOrderInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckAndGetTask not implemented")
+}
+func (UnimplementedTaskOrderServiceServer) BuyTaskAnswer(context.Context, *UsernameAndId) (*None, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BuyTaskAnswer not implemented")
 }
 func (UnimplementedTaskOrderServiceServer) CreateNewTask(context.Context, *Task) (*None, error) {
@@ -282,26 +320,47 @@ func (x *taskOrderServiceGetAllTasksServer) Send(m *Task) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _TaskOrderService_GetTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OrderTask)
+func _TaskOrderService_GetAllTasksWithoutAnswers_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Page)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(TaskOrderServiceServer).GetAllTasksWithoutAnswers(m, &taskOrderServiceGetAllTasksWithoutAnswersServer{stream})
+}
+
+type TaskOrderService_GetAllTasksWithoutAnswersServer interface {
+	Send(*TaskWithoutAnswer) error
+	grpc.ServerStream
+}
+
+type taskOrderServiceGetAllTasksWithoutAnswersServer struct {
+	grpc.ServerStream
+}
+
+func (x *taskOrderServiceGetAllTasksWithoutAnswersServer) Send(m *TaskWithoutAnswer) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _TaskOrderService_CheckAndGetTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UsernameAndId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TaskOrderServiceServer).GetTask(ctx, in)
+		return srv.(TaskOrderServiceServer).CheckAndGetTask(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TaskOrderService_GetTask_FullMethodName,
+		FullMethod: TaskOrderService_CheckAndGetTask_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TaskOrderServiceServer).GetTask(ctx, req.(*OrderTask))
+		return srv.(TaskOrderServiceServer).CheckAndGetTask(ctx, req.(*UsernameAndId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _TaskOrderService_BuyTaskAnswer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserBuyAnswer)
+	in := new(UsernameAndId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -313,7 +372,7 @@ func _TaskOrderService_BuyTaskAnswer_Handler(srv interface{}, ctx context.Contex
 		FullMethod: TaskOrderService_BuyTaskAnswer_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TaskOrderServiceServer).BuyTaskAnswer(ctx, req.(*UserBuyAnswer))
+		return srv.(TaskOrderServiceServer).BuyTaskAnswer(ctx, req.(*UsernameAndId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -416,8 +475,8 @@ var TaskOrderService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*TaskOrderServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "getTask",
-			Handler:    _TaskOrderService_GetTask_Handler,
+			MethodName: "CheckAndGetTask",
+			Handler:    _TaskOrderService_CheckAndGetTask_Handler,
 		},
 		{
 			MethodName: "buyTaskAnswer",
@@ -453,6 +512,11 @@ var TaskOrderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "getAllTasks",
 			Handler:       _TaskOrderService_GetAllTasks_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "getAllTasksWithoutAnswers",
+			Handler:       _TaskOrderService_GetAllTasksWithoutAnswers_Handler,
 			ServerStreams: true,
 		},
 	},

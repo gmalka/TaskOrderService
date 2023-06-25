@@ -18,7 +18,86 @@ type UpdateReuqest struct {
 	NewBalance int `json:"balance"`
 }
 
+func (h Handler) getUsersTasksWithoutAnswer(w http.ResponseWriter, r *http.Request)  {
+	page := chi.URLParam(r, "page")
+
+	pageNum, err := strconv.Atoi(page)
+	if err != nil {
+		h.logger.Err.Printf("can't parse number %s: %v", page, err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	if pageNum <= 0 {
+		pageNum = 1
+	}
+
+	tasks, err := h.grpcCli.GetAllTasksWithoutAnswers(pageNum)
+	if err != nil {
+		h.logger.Err.Println(err.Error())
+		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		return
+	}
+
+	b, err := json.Marshal(tasks)
+	if err != nil {
+		h.logger.Err.Printf("marshal error: %v\n", err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(b)
+}
+
+func (h Handler) getTasksWithoutAnswer(w http.ResponseWriter, r *http.Request) {
+	page := chi.URLParam(r, "page")
+
+	pageNum, err := strconv.Atoi(page)
+	if err != nil {
+		h.logger.Err.Printf("can't parse number %s: %v", page, err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	if pageNum == 0 {
+		pageNum = 1
+	}
+
+	orders, err := h.grpcCli.GetAllTasksWithoutAnswers(pageNum)
+	if err != nil {
+		h.logger.Err.Println(err.Error())
+		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		return
+	}
+
+	b, err := json.Marshal(orders)
+	if err != nil {
+		h.logger.Err.Printf("marshal error: %v\n", err.Error())
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(fmt.Sprintf("page №%d:\n", pageNum)))
+	w.Write(b)
+}
+
 func (h Handler) getAllTasks(w http.ResponseWriter, r *http.Request) {
+	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
+	if !ok {
+		h.logger.Err.Println("cant get data from context")
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	if u.Role != usercontroller.ADMIN_ROLE {
+		h.logger.Err.Printf("permission denied for user %s\n", u.Username)
+		http.Error(w, "message: permission denied", http.StatusForbidden)
+		return
+	}
+
 	tasks, err := h.grpcCli.GetAllTasks()
 	if err != nil {
 		h.logger.Err.Println(err.Error())

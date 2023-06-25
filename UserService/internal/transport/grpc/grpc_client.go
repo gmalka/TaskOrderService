@@ -15,9 +15,10 @@ import (
 type RemoteOrderClient interface {
 	UpdatePriceOfTask(id, price int) error
 	CreateNewTask(task model.Task) error
-	GetTask(id int) (model.TaskOrderInfo, error)
+	CheckAndGetTask(username string, id int) (model.TaskOrderInfo, error)
 	BuyTaskAnswer(username string, taskId int) error
 	GetAllTasks() ([]model.Task, error)
+	GetAllTasksWithoutAnswers(page int) ([]model.TaskWithoutAnswer, error)
 	GetOrdersForUser(username string, page int) ([]model.Task, error)
 	DeleteOrdersForUser(username string) error
 	DeleteTask(taskId int) error
@@ -54,6 +55,36 @@ func NewGrpcClient(ip, port string) (RemoteOrderClient, error) {
 	return grpcClient{client: client}, nil
 }
 
+func (g grpcClient) GetAllTasksWithoutAnswers(page int) ([]model.TaskWithoutAnswer, error) {
+	res, err := g.client.GetAllTasksWithoutAnswers(context.Background(), &proto.Page{
+		Page: int64(page),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("can't get all tasks: %v", err)
+	}
+
+	result := make([]model.TaskWithoutAnswer, 0, 10)
+	for {
+		resp, err := res.Recv()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return nil, fmt.Errorf("can't get task: %v", err)
+		}
+
+		result = append(result, model.TaskWithoutAnswer{
+			Id:      int(resp.Id),
+			Count:   int(resp.Count),
+			Heights: resp.Height,
+			Price:   int(resp.Price),
+		})
+	}
+
+	return result, nil
+}
+
 func (g grpcClient) DeleteTask(taskId int) error {
 	_, err := g.client.DeleteTask(context.Background(), &proto.OrderTask{
 		Id: int64(taskId),
@@ -77,7 +108,7 @@ func (g grpcClient) DeleteOrdersForUser(username string) error {
 }
 
 func (g grpcClient) BuyTaskAnswer(username string, taskId int) error {
-	_, err := g.client.BuyTaskAnswer(context.Background(), &proto.UserBuyAnswer{
+	_, err := g.client.BuyTaskAnswer(context.Background(), &proto.UsernameAndId{
 		Username: username,
 		Id:       int64(taskId),
 	})
@@ -115,14 +146,15 @@ func (g grpcClient) CreateNewTask(task model.Task) error {
 	return nil
 }
 
-func (g grpcClient) GetTask(id int) (model.TaskOrderInfo, error) {
+func (g grpcClient) CheckAndGetTask(username string, id int) (model.TaskOrderInfo, error) {
 	var task model.TaskOrderInfo
 
-	res, err := g.client.GetTask(context.Background(), &proto.OrderTask{
-		Id: int64(id),
+	res, err := g.client.CheckAndGetTask(context.Background(), &proto.UsernameAndId{
+		Username: username,
+		Id:       int64(id),
 	})
 	if err != nil {
-		return task, fmt.Errorf("can't get task by id %d: %v", id, err)
+		return task, fmt.Errorf("can't get task %d: %v", id, err)
 	}
 
 	task.Id = id

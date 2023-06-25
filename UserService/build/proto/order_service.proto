@@ -7,8 +7,9 @@ package proto;
 service TaskOrderService {
     rpc getOrdersForUser(UserOrders) returns (stream Task);
     rpc getAllTasks(None) returns (stream Task);
-    rpc getTask(OrderTask) returns (TaskOrderInfo);
-    rpc buyTaskAnswer(UserBuyAnswer) returns (None);
+    rpc getAllTasksWithoutAnswers(Page) returns (stream TaskWithoutAnswer);
+    rpc CheckAndGetTask(UsernameAndId) returns (TaskOrderInfo);
+    rpc buyTaskAnswer(UsernameAndId) returns (None);
     rpc createNewTask(Task) returns (None);
     rpc updatePriceOfTask(TaskForUpdate) returns (None);
     rpc deleteOrdersForUser(UserId) returns (None);
@@ -19,7 +20,7 @@ service TaskOrderService {
 
 message None {}
 
-message UserBuyAnswer {
+message UsernameAndId {
     string username = 1;
     int64 id = 2;
 }
@@ -42,6 +43,13 @@ message TaskOrderInfo {
     int64 price = 2;
 }
 
+message TaskWithoutAnswer {
+    int64 id = 1;
+    int64 count = 2;
+    repeated int64 height = 3;
+    int64 price = 4;
+}
+
 message Task {
     int64 id = 1;
     int64 count = 2;
@@ -52,5 +60,9 @@ message Task {
 
 message UserOrders {
     string username = 1;
+    int64 page = 2;
+}
+
+message Page {
     int64 page = 2;
 }
