@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package proto;
+
+service TaskOrderService {
+    rpc getOrdersForUser(UserOrders) returns (stream Task);
+    rpc getAllTasks(None) returns (stream Task);
+    rpc getTask(OrderTask) returns (TaskOrderInfo);
+    rpc buyTaskAnswer(UserBuyAnswer) returns (None);
+    rpc createNewTask(Task) returns (None);
+    rpc updatePriceOfTask(TaskForUpdate) returns (None);
+    rpc deleteOrdersForUser(UserId) returns (None);
+    rpc deleteTask(OrderTask) returns (None);
+
+    rpc ping(None) returns (None);
+}
+
+message None {}
+
+message UserBuyAnswer {
+    string username = 1;
+    int64 id = 2;
+}
+
+message TaskForUpdate {
+    int64 id = 1;
+    int64 price = 2;
+}
+
+message OrderTask {
+    int64 id = 1;
+}
+
+message UserId {
+    string username = 1;
+}
+
+message TaskOrderInfo {
+    int64 answer = 1;
+    int64 price = 2;
+}
+
+message Task {
+    int64 id = 1;
+    int64 count = 2;
+    repeated int64 height = 3;
+    int64 price = 4;
+    int64 answer = 5;
+}
+
+message UserOrders {
+    string username = 1;
+    int64 page = 2;
+}
