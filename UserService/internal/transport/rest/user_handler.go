@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"userService/internal/auth"
+	"userService/internal/auth/tokenManager"
 	"userService/internal/model"
 	usercontroller "userService/internal/user_controller"
 
@@ -116,7 +116,7 @@ func (h Handler) getUsersTasks(w http.ResponseWriter, r *http.Request) {
 func (h Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 	username := chi.URLParam(r, "username")
 
-	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
+	u, ok := r.Context().Value(UserRequest{}).(tokenManager.UserClaims)
 	if !ok {
 		h.logger.Err.Println("cant get data from context")
 		http.Error(w, "message: some server error", http.StatusInternalServerError)
@@ -158,7 +158,7 @@ func (h Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 func (h Handler) updateUser(w http.ResponseWriter, r *http.Request) {
 	var user model.UserForUpdate
 
-	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
+	u, ok := r.Context().Value(UserRequest{}).(tokenManager.UserClaims)
 	if !ok {
 		h.logger.Err.Println("cant get data from context")
 		http.Error(w, "message: some server error", http.StatusInternalServerError)

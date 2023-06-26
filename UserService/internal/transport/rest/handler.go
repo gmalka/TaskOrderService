@@ -5,7 +5,8 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"userService/internal/auth"
+	"userService/internal/auth/passwordHandler"
+	"userService/internal/auth/tokenManager"
 	"userService/internal/model"
 	mygrpc "userService/internal/transport/grpc"
 	usercontroller "userService/internal/user_controller"
@@ -61,13 +62,13 @@ type Log struct {
 
 type Handler struct {
 	controller   usercontroller.Controller
-	tokenManager auth.TokenManager
+	tokenManager tokenManager.TokenManager
 	grpcCli      mygrpc.RemoteOrderClient
-	p            auth.PasswordManager
+	p            passwordHandler.PasswordHandler
 	logger       Log
 }
 
-func NewHandler(controller usercontroller.Controller, tokenManager auth.TokenManager, grpcCli mygrpc.RemoteOrderClient, p auth.PasswordManager, logger Log) Handler {
+func NewHandler(controller usercontroller.Controller, tokenManager tokenManager.TokenManager, grpcCli mygrpc.RemoteOrderClient, p passwordHandler.PasswordHandler, logger Log) Handler {
 	return Handler{controller: controller, tokenManager: tokenManager, grpcCli: grpcCli, p: p, logger: logger}
 }
 
@@ -135,13 +136,13 @@ func (h Handler) swaggerUI(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func generateTokens(tokenManager auth.TokenManager, user auth.UserInfo) (model.AuthInfo, error) {
-	accessToken, err := tokenManager.CreateToken(user, auth.ACCESS_TOKEN_TTL, auth.AccessToken)
+func generateTokens(tm tokenManager.TokenManager, user tokenManager.UserInfo) (model.AuthInfo, error) {
+	accessToken, err := tm.CreateToken(user, tokenManager.ACCESS_TOKEN_TTL, tokenManager.AccessToken)
 	if err != nil {
 		return model.AuthInfo{}, err
 	}
 
-	refreshToken, err := tokenManager.CreateToken(user, auth.REFRESH_TOKEN_TTL, auth.RefreshToken)
+	refreshToken, err := tm.CreateToken(user, tokenManager.REFRESH_TOKEN_TTL, tokenManager.RefreshToken)
 	if err != nil {
 		return model.AuthInfo{}, err
 	}

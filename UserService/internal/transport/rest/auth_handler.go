@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"userService/internal/auth"
+	"userService/internal/auth/tokenManager"
 	"userService/internal/model"
 
 	"github.com/go-chi/chi/v5"
@@ -43,7 +43,7 @@ func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokens, err := generateTokens(h.tokenManager, auth.UserInfo{
+	tokens, err := generateTokens(h.tokenManager, tokenManager.UserInfo{
 		Username:  user.User.Username,
 		Role:      user.Role,
 		Firstname: user.User.Info.Firstname,
@@ -68,14 +68,14 @@ func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handler) refresh(w http.ResponseWriter, r *http.Request) {
-	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
+	u, ok := r.Context().Value(UserRequest{}).(tokenManager.UserClaims)
 	if !ok {
 		h.logger.Err.Println("cant get data from context")
 		http.Error(w, "message: some server error", http.StatusInternalServerError)
 		return
 	}
 
-	tokens, err := generateTokens(h.tokenManager, auth.UserInfo{
+	tokens, err := generateTokens(h.tokenManager, tokenManager.UserInfo{
 		Username:  u.Username,
 		Role:      u.Role,
 		Firstname: u.Firstname,
@@ -155,7 +155,7 @@ func (h Handler) checkAccess(next http.Handler) http.Handler {
 			return
 		}
 
-		u, err := h.tokenManager.ParseToken(tokenParts[1], auth.AccessToken)
+		u, err := h.tokenManager.ParseToken(tokenParts[1], tokenManager.AccessToken)
 		if err != nil {
 			h.logger.Err.Println(err.Error())
 			http.Error(w, "message: wrong authorization token", http.StatusBadRequest)
@@ -185,7 +185,7 @@ func (h Handler) checkRefresh(next http.Handler) http.Handler {
 			return
 		}
 
-		u, err := h.tokenManager.ParseToken(tokenParts[1], auth.RefreshToken)
+		u, err := h.tokenManager.ParseToken(tokenParts[1], tokenManager.RefreshToken)
 		if err != nil {
 			h.logger.Err.Println(err.Error())
 			http.Error(w, "message: wrong authorization token", http.StatusBadRequest)

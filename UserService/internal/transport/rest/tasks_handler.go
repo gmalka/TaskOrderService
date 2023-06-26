@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"userService/internal/auth"
+	"userService/internal/auth/tokenManager"
 	"userService/internal/model"
 	usercontroller "userService/internal/user_controller"
 
@@ -18,7 +18,7 @@ type UpdateReuqest struct {
 	NewBalance int `json:"balance"`
 }
 
-func (h Handler) getUsersTasksWithoutAnswer(w http.ResponseWriter, r *http.Request)  {
+func (h Handler) getUsersTasksWithoutAnswer(w http.ResponseWriter, r *http.Request) {
 	page := chi.URLParam(r, "page")
 
 	pageNum, err := strconv.Atoi(page)
@@ -85,7 +85,7 @@ func (h Handler) getTasksWithoutAnswer(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handler) getAllTasks(w http.ResponseWriter, r *http.Request) {
-	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
+	u, ok := r.Context().Value(UserRequest{}).(tokenManager.UserClaims)
 	if !ok {
 		h.logger.Err.Println("cant get data from context")
 		http.Error(w, "message: some server error", http.StatusInternalServerError)
@@ -120,7 +120,7 @@ func (h Handler) getAllTasks(w http.ResponseWriter, r *http.Request) {
 func (h Handler) updateUserBalance(w http.ResponseWriter, r *http.Request) {
 	var change model.BalanceChange
 
-	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
+	u, ok := r.Context().Value(UserRequest{}).(tokenManager.UserClaims)
 	if !ok {
 		h.logger.Err.Println("cant get data from context")
 		http.Error(w, "message: some server error", http.StatusInternalServerError)
@@ -169,7 +169,7 @@ func (h Handler) updateUserBalance(w http.ResponseWriter, r *http.Request) {
 func (h Handler) updateTask(w http.ResponseWriter, r *http.Request) {
 	var update UpdateReuqest
 
-	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
+	u, ok := r.Context().Value(UserRequest{}).(tokenManager.UserClaims)
 	if !ok {
 		h.logger.Err.Println("cant get data from context")
 		http.Error(w, "message: some server error", http.StatusInternalServerError)
@@ -247,7 +247,7 @@ func (h Handler) deleteTask(w http.ResponseWriter, r *http.Request) {
 func (h Handler) createTask(w http.ResponseWriter, r *http.Request) {
 	var task model.Task
 
-	u, ok := r.Context().Value(UserRequest{}).(auth.UserClaims)
+	u, ok := r.Context().Value(UserRequest{}).(tokenManager.UserClaims)
 	if !ok {
 		h.logger.Err.Println("can't get data from context")
 		http.Error(w, "message: some server error", http.StatusInternalServerError)

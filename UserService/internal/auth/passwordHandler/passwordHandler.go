@@ -1,4 +1,4 @@
-package auth
+package passwordHandler
 
 import (
 	"fmt"
@@ -6,19 +6,19 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type PasswordManager interface {
+type PasswordHandler interface {
 	HashPassword(password string) (string, error)
 	CheckPassword(verifiable, wanted string) error
 }
 
-type passwordManager struct {
+type passwordHandler struct {
 }
 
-func NewPasswordManager() PasswordManager {
-	return passwordManager{}
+func NewPasswordManager() PasswordHandler {
+	return passwordHandler{}
 }
 
-func (p passwordManager) HashPassword(password string) (string, error) {
+func (p passwordHandler) HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", fmt.Errorf("can't hash password: %v", err)
@@ -27,7 +27,7 @@ func (p passwordManager) HashPassword(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func (p passwordManager) CheckPassword(verifiable, wanted string) error {
+func (p passwordHandler) CheckPassword(verifiable, wanted string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(wanted), []byte(verifiable))
 	if err != nil {
 		return fmt.Errorf("authorization failed: %v", err)
