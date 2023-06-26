@@ -9,7 +9,6 @@ import (
 	"userService/internal/model"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 type RemoteOrderClient interface {
@@ -28,15 +27,8 @@ type grpcClient struct {
 	client proto.TaskOrderServiceClient
 }
 
-func NewGrpcClient(ip, port string) (RemoteOrderClient, error) {
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	}
-	path := fmt.Sprintf("%s:%s", ip, port)
-	conn, err := grpc.Dial(path, opts...)
-	if err != nil {
-		return nil, fmt.Errorf("can't connect by grpc to path %s: %v", path, err)
-	}
+func NewGrpcClient(conn *grpc.ClientConn) (RemoteOrderClient, error) {
+	var err error
 
 	client := proto.NewTaskOrderServiceClient(conn)
 
@@ -49,7 +41,7 @@ func NewGrpcClient(ip, port string) (RemoteOrderClient, error) {
 		time.Sleep(time.Second)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("can't ping to grpc server by path %s: %v", path, err)
+		return nil, fmt.Errorf("can't ping to grpc server: %v", err)
 	}
 
 	return grpcClient{client: client}, nil
