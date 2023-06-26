@@ -3,7 +3,6 @@ package ordercontroller
 import (
 	"taskServer/database"
 	"taskServer/model"
-	"taskServer/nosql"
 )
 
 type Controller interface {
@@ -20,7 +19,6 @@ type Controller interface {
 
 type orderController struct {
 	db    database.DatabaseService
-	cache nosql.NoSqlService
 }
 
 func NewUserController(db database.DatabaseService) Controller {
