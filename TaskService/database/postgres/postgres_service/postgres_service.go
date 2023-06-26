@@ -23,6 +23,10 @@ func NewPostgresService(db *sqlx.DB) database.DatabaseService {
 func (p postgresService) GetAllTasksWithoutAnswers(page int) ([]model.TaskWithoutAnswer, error) {
 	var tasks []model.TaskWithoutAnswer
 
+	if page <= 0 {
+		page = 1
+	}
+
 	result, err := p.db.Query("SELECT id,quantity,heights,price FROM tasks LIMIT $1 OFFSET $2", TASKS_PER_PAGE, (page-1)*TASKS_PER_PAGE)
 	if err != nil {
 		return nil, fmt.Errorf("can't get tasks: %s", err)
@@ -77,7 +81,7 @@ func (p postgresService) CreateTask(task model.Task) error {
 func (p postgresService) CheckAndGetTask(username string, id int) (model.Task, error) {
 	var task model.Task
 
-	err := p.db.QueryRow("SELECT id,quantity,heights,price,answer FROM tasks LEFT JOIN userOrders ON tasks.id=userOrders.orderId WHERE id=$1 AND NOT EXISTS (SELECT 1 FROM userOrders WHERE orderId = $1 AND username = $2);",
+	err := p.db.QueryRow("SELECT id,quantity,heights,price,answer FROM tasks LEFT JOIN userOrders ON tasks.id=userOrders.orderId WHERE id=$1 AND NOT EXISTS (SELECT 1 FROM userOrders WHERE orderId = $1 AND username = $2)",
 		id, username).Scan(&task.Id, &task.Count, (*pq.Int64Array)(&task.Heights), &task.Price, &task.Answer)
 	if err == sql.ErrNoRows {
 		return task, fmt.Errorf("the job has already been purchased by this user\n")
