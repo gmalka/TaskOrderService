@@ -20,16 +20,7 @@ type TestGrpcServerDouble struct {
 }
 
 func (t TestGrpcServerDouble) Ping(ctx context.Context, req *proto.None) (*proto.None, error) {
-	i := ctx.Value("id").(int)
-
-	switch i {
-	case 1:
-		return &proto.None{}, nil
-	case 2:
-		return nil, errors.New("somer error")
-	}
-
-	return nil, nil
+	return &proto.None{}, nil
 }
 
 func (t TestGrpcServerDouble) GetAllTasksWithoutAnswers(req *proto.Page, stream proto.TaskOrderService_GetAllTasksWithoutAnswersServer) error {
