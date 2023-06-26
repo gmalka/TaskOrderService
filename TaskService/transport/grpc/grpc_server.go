@@ -2,6 +2,7 @@ package mygrpc
 
 import (
 	"context"
+	"log"
 	"taskServer/build/proto"
 	"taskServer/database"
 	"taskServer/model"
@@ -12,6 +13,7 @@ import (
 )
 
 // type RemoteOrderServer interface {
+// 	Ping(ctx context.Context, req *proto.None) (*proto.None, error)
 // 	getOrdersForUser(req *proto.UserOrders, stream proto.TaskOrderService_GetOrdersForUserServer) error
 // 	getAllTasks(req *proto.None, stream proto.TaskOrderService_GetOrdersForUserServer) error
 // 	getTask(req *proto.OrderTask) (proto.TaskOrderInfo, error)
@@ -24,14 +26,20 @@ import (
 // 	mustEmbedUnimplementedTaskOrderServiceServer()
 // }
 
+type Log struct {
+	Err *log.Logger
+	Inf *log.Logger
+}
+
 type grpcServ struct {
-	bd database.DatabaseService
+	bd     database.DatabaseService
+	logger Log
 	proto.UnimplementedTaskOrderServiceServer
 }
 
-func NewGrpcServer(bd database.DatabaseService) *grpc.Server {
+func NewGrpcServer(bd database.DatabaseService, logger Log) *grpc.Server {
 	grpcServer := grpc.NewServer()
-	proto.RegisterTaskOrderServiceServer(grpcServer, &grpcServ{bd: bd})
+	proto.RegisterTaskOrderServiceServer(grpcServer, &grpcServ{bd: bd, logger: logger})
 	return grpcServer
 }
 
@@ -42,12 +50,14 @@ func (g grpcServ) Ping(ctx context.Context, req *proto.None) (*proto.None, error
 func (g grpcServ) GetAllTasksWithoutAnswers(req *proto.Page, stream proto.TaskOrderService_GetAllTasksWithoutAnswersServer) error {
 	data, err := g.bd.GetAllTasksWithoutAnswers(int(req.Page))
 	if err != nil {
+		g.logger.Err.Printf("can't get all tasks without answers: %v", err)
 		return err
 	}
 
 	for _, s := range data {
 		select {
 		case <-stream.Context().Done():
+			g.logger.Err.Printf("get all stream has ended: %v", err)
 			return status.Error(codes.Canceled, "stream has ended")
 		default:
 			err := stream.SendMsg(&proto.Task{
@@ -57,6 +67,7 @@ func (g grpcServ) GetAllTasksWithoutAnswers(req *proto.Page, stream proto.TaskOr
 				Price:  int64(s.Price),
 			})
 			if err != nil {
+				g.logger.Err.Printf("can't send message: %v", err)
 				return status.Error(codes.Canceled, err.Error())
 			}
 		}
@@ -67,12 +78,14 @@ func (g grpcServ) GetAllTasksWithoutAnswers(req *proto.Page, stream proto.TaskOr
 func (g grpcServ) GetOrdersForUser(req *proto.UserOrders, stream proto.TaskOrderService_GetOrdersForUserServer) error {
 	data, err := g.bd.GetAllTasksOfUser(req.Username, int(req.Page))
 	if err != nil {
+		g.logger.Err.Printf("can't get all tasks of user %s: %v", req.Username, err)
 		return err
 	}
 
 	for _, s := range data {
 		select {
 		case <-stream.Context().Done():
+			g.logger.Err.Printf("get all stream has ended: %v", err)
 			return status.Error(codes.Canceled, "stream has ended")
 		default:
 			err := stream.SendMsg(&proto.Task{
@@ -83,6 +96,7 @@ func (g grpcServ) GetOrdersForUser(req *proto.UserOrders, stream proto.TaskOrder
 				Answer: int64(s.Answer),
 			})
 			if err != nil {
+				g.logger.Err.Printf("can't send message: %v", err)
 				return status.Error(codes.Canceled, err.Error())
 			}
 		}
@@ -93,12 +107,14 @@ func (g grpcServ) GetOrdersForUser(req *proto.UserOrders, stream proto.TaskOrder
 func (g grpcServ) GetAllTasks(req *proto.None, stream proto.TaskOrderService_GetAllTasksServer) error {
 	data, err := g.bd.GetAllTasks()
 	if err != nil {
+		g.logger.Err.Printf("can't get all tasks: %v", err)
 		return err
 	}
 
 	for _, s := range data {
 		select {
 		case <-stream.Context().Done():
+			g.logger.Err.Printf("get all stream has ended: %v", err)
 			return status.Error(codes.Canceled, "stream has ended")
 		default:
 			err := stream.SendMsg(&proto.Task{
@@ -109,6 +125,7 @@ func (g grpcServ) GetAllTasks(req *proto.None, stream proto.TaskOrderService_Get
 				Answer: int64(s.Answer),
 			})
 			if err != nil {
+				g.logger.Err.Printf("can't send message: %v", err)
 				return status.Error(codes.Canceled, err.Error())
 			}
 		}
@@ -118,6 +135,10 @@ func (g grpcServ) GetAllTasks(req *proto.None, stream proto.TaskOrderService_Get
 
 func (g grpcServ) CheckAndGetTask(ctx context.Context, req *proto.UsernameAndId) (*proto.TaskOrderInfo, error) {
 	task, err := g.bd.CheckAndGetTask(req.Username, int(req.Id))
+
+	if err != nil {
+		g.logger.Err.Printf("can't check and get task %d by user %s: %v", req.Id, req.Username, err)
+	}
 
 	return &proto.TaskOrderInfo{
 		Answer: int64(task.Answer),
@@ -131,6 +152,10 @@ func (g grpcServ) BuyTaskAnswer(ctx context.Context, req *proto.UsernameAndId) (
 		OrderId:  int(req.Id),
 	})
 
+	if err != nil {
+		g.logger.Err.Printf("can't buy task answer %d by user %s: %v", req.Id, req.Username, err)
+	}
+
 	return &proto.None{}, err
 }
 
@@ -143,23 +168,36 @@ func (g grpcServ) CreateNewTask(ctx context.Context, req *proto.Task) (*proto.No
 		Answer:  int(req.Answer),
 	})
 
+	if err != nil {
+		g.logger.Err.Printf("can't create task: %v", err)
+	}
+
 	return &proto.None{}, err
 }
 
 func (g grpcServ) UpdatePriceOfTask(ctx context.Context, req *proto.TaskForUpdate) (*proto.None, error) {
 	err := g.bd.ChangeTaskPrice(int(req.Id), int(req.Price))
+	if err != nil {
+		g.logger.Err.Printf("can't update price of task %d: %v", req.Id, err)
+	}
 
 	return &proto.None{}, err
 }
 
 func (g grpcServ) DeleteOrdersForUser(ctx context.Context, req *proto.UserId) (*proto.None, error) {
 	err := g.bd.DeleteAllTasksOfUser(req.Username)
+	if err != nil {
+		g.logger.Err.Printf("can't delete orders for user %s: %v", req.Username, err)
+	}
 
 	return &proto.None{}, err
 }
 
 func (g grpcServ) DeleteTask(ctx context.Context, req *proto.OrderTask) (*proto.None, error) {
 	err := g.bd.DeleteTask(int(req.Id))
+	if err != nil {
+		g.logger.Err.Printf("can't delete task %d: %v", req.Id, err)
+	}
 
 	return &proto.None{}, err
 }

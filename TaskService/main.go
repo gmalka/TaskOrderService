@@ -52,7 +52,7 @@ func main() {
 	ordercontroller := ordercontroller.NewUserController(service)
 	list, err := net.Listen("tcp", fmt.Sprintf("%s:%s", os.Getenv("GRPC_URL"), os.Getenv("GRPC_PORT")))
 
-	grpcServer := mygrpc.NewGrpcServer(ordercontroller)
+	grpcServer := mygrpc.NewGrpcServer(ordercontroller, mygrpc.Log(log))
 
 	h := rest.NewHandler(ordercontroller, log)
 
