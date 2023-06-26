@@ -37,7 +37,7 @@ func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := auth.CheckPassword(userAuth.Password, user.User.Password); err != nil {
+	if err := h.p.CheckPassword(userAuth.Password, user.User.Password); err != nil {
 		h.logger.Err.Println(err.Error())
 		http.Error(w, "message: passwords mismatch", http.StatusUnauthorized)
 		return
@@ -116,7 +116,7 @@ func (h Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user.Password, err = auth.HashPassword(user.Password)
+	user.Password, err = h.p.HashPassword(user.Password)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
 		http.Error(w, "message: some server error", http.StatusInternalServerError)

@@ -120,30 +120,3 @@ func (p postgresService) Delete(username string) error {
 	}
 	return err
 }
-
-// func (p postgresService) GetOrdersOfUser(username string, number int) ([]model.Task, error) {
-// 	var orders []model.Task
-
-// 	if number > 0 {
-// 		number--
-// 	}
-
-// 	rows, err := p.db.Query("SELECT orders.count, orders.heights, orders.price FROM user_orders LEFT JOIN orders ON user_orders.orderId=orders.id WHERE username=$1 LIMIT $2, $3", username, ORDERS_PER_ROW, number*10)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("can't get orders for user %s: %v", username, err)
-// 	}
-
-// 	for rows.Next() {
-// 		var order model.Task
-
-// 		err = rows.Scan(&order)
-// 		if err != nil {
-// 			log.Println("Error while scanning users order ", username)
-// 			return nil, fmt.Errorf("can't get users orders: %s", username)
-// 		}
-
-// 		orders = append(orders, order)
-// 	}
-
-// 	return orders, nil
-// }

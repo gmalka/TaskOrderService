@@ -63,11 +63,12 @@ type Handler struct {
 	controller   usercontroller.Controller
 	tokenManager auth.TokenManager
 	grpcCli      mygrpc.RemoteOrderClient
+	p            auth.PasswordManager
 	logger       Log
 }
 
-func NewHandler(controller usercontroller.Controller, tokenManager auth.TokenManager, grpcCli mygrpc.RemoteOrderClient, logger Log) Handler {
-	return Handler{controller: controller, tokenManager: tokenManager, grpcCli: grpcCli, logger: logger}
+func NewHandler(controller usercontroller.Controller, tokenManager auth.TokenManager, grpcCli mygrpc.RemoteOrderClient, p auth.PasswordManager, logger Log) Handler {
+	return Handler{controller: controller, tokenManager: tokenManager, grpcCli: grpcCli, p: p, logger: logger}
 }
 
 func (h Handler) InitRouter() http.Handler {

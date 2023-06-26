@@ -56,7 +56,7 @@ func main() {
 		return
 	}
 
-	handler := rest.NewHandler(userController, tokenManager, grpcController, log)
+	handler := rest.NewHandler(userController, tokenManager, grpcController, auth.NewPasswordManager(), log)
 
 	RunServer(fmt.Sprintf("%s:%s", os.Getenv("URL"), os.Getenv("PORT")), handler.InitRouter(), log)
 }
