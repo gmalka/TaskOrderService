@@ -1,6 +1,6 @@
 package handlers
 
-import "userService/internal/model"
+import "userService/pkg/model"
 
 // swagger:route GET /users user EmptyRequest
 // Получение ников всех пользователей.

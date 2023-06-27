@@ -1,6 +1,6 @@
 package handlers
 
-import "userService/internal/model"
+import "userService/pkg/model"
 
 // swagger:route GET /tasks/{page} orders GetAllWithoutAnswersRequest
 // Получение всех задач без ответов.

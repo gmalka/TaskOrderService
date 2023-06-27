@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"userService/internal/model"
-	"userService/internal/transport/rest"
+	"userService/pkg/model"
+	"userService/transport/rest"
 )
 
 // swagger:route POST /users/{username}/orders admin CreateTaskRequest

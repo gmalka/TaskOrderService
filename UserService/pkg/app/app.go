@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"context"
@@ -8,13 +8,13 @@ import (
 	"os"
 	"os/signal"
 	"time"
-	"userService/internal/auth/passwordManager"
-	"userService/internal/auth/tokenManager"
-	"userService/internal/database/postgres"
-	postgresservice "userService/internal/database/postgres/postgres_service"
-	mygrpc "userService/internal/transport/grpc"
-	"userService/internal/transport/rest"
-	usercontroller "userService/internal/user_controller"
+	"userService/auth/passwordManager"
+	"userService/auth/tokenManager"
+	"userService/pkg/database/postgres"
+	postgresservice "userService/pkg/database/postgres/postgres_service"
+	usercontroller "userService/pkg/user_controller"
+	mygrpc "userService/transport/grpc"
+	"userService/transport/rest"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -22,7 +22,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func main() {
+func Run() {
 	godotenv.Load()
 
 	tokenManager := tokenManager.NewAuthService(os.Getenv("ACCESS_SECRET"), os.Getenv("REFRESH_SECRET"))
@@ -36,13 +36,7 @@ func main() {
 		Sslmode:  os.Getenv("DB_SSLMODE"),
 	}
 
-	loggerErr := log.New(os.Stderr, "ERROR:\t ", log.Lshortfile|log.Ltime)
-	loggerInfo := log.New(os.Stdout, "INFO:\t ", log.Lshortfile|log.Ltime)
-
-	log := rest.Log{
-		Err: loggerErr,
-		Inf: loggerInfo,
-	}
+	log := newLogger()
 
 	db, err := postgres.NewPostgresConnection(config)
 	if err != nil {
@@ -61,7 +55,7 @@ func main() {
 	path := fmt.Sprintf("%s:%s", os.Getenv("GRPC_URL"), os.Getenv("GRPC_PORT"))
 	conn, err := grpc.Dial(path, opts...)
 	if err != nil {
-		loggerErr.Printf("can't connect by grpc to path %s: %v", path, err)
+		log.Err.Printf("can't connect by grpc to path %s: %v", path, err)
 		return
 	}
 
@@ -74,6 +68,19 @@ func main() {
 	handler := rest.NewHandler(userController, tokenManager, grpcController, passwordManager.NewPasswordManager(), log)
 
 	RunServer(fmt.Sprintf("%s:%s", os.Getenv("URL"), os.Getenv("PORT")), handler.InitRouter(false), log)
+}
+
+func newLogger() rest.Log {
+
+	loggerErr := log.New(os.Stderr, "ERROR:\t ", log.Lshortfile|log.Ltime)
+	loggerInfo := log.New(os.Stdout, "INFO:\t ", log.Lshortfile|log.Ltime)
+
+	log := rest.Log{
+		Err: loggerErr,
+		Inf: loggerInfo,
+	}
+
+	return log
 }
 
 func RunServer(addr string, h http.Handler, log rest.Log) {
@@ -94,9 +101,3 @@ func RunServer(addr string, h http.Handler, log rest.Log) {
 	srv.Shutdown(ctx)
 	log.Inf.Println("Server exited")
 }
-
-/*
-protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative build/proto/order_service.proto
-
-swagger generate spec -o public/swagger.json --scan-models
-*/

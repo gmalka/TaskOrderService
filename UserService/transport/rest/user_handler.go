@@ -6,9 +6,9 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"userService/internal/auth/tokenManager"
-	"userService/internal/model"
-	usercontroller "userService/internal/user_controller"
+	"userService/auth/tokenManager"
+	"userService/pkg/model"
+	usercontroller "userService/pkg/user_controller"
 
 	"github.com/go-chi/chi/v5"
 )

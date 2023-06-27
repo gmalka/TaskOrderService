@@ -2,8 +2,8 @@ package postgresservice
 
 import (
 	"fmt"
-	"userService/internal/database"
-	"userService/internal/model"
+	"userService/pkg/database"
+	"userService/pkg/model"
 
 	"github.com/jmoiron/sqlx"
 )

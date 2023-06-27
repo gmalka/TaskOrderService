@@ -9,14 +9,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"time"
+	"userService/auth/tokenManager"
+	"userService/pkg/model"
+
+	"userService/transport/rest"
 
 	. "github.com/gcapizzi/moka"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"userService/internal/auth/tokenManager"
-	"userService/internal/model"
-	"userService/internal/transport/rest"
 )
 
 var _ = Describe("Handler", func() {

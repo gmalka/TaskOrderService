@@ -7,8 +7,9 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"userService/internal/auth/tokenManager"
-	"userService/internal/model"
+
+	"userService/auth/tokenManager"
+	"userService/pkg/model"
 
 	"github.com/go-chi/chi/v5"
 )

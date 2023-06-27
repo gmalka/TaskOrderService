@@ -1,6 +1,6 @@
 package handlers
 
-import "userService/internal/model"
+import "userService/pkg/model"
 
 // swagger:route POST /auth/refresh auth RefreshRequest
 // Обновление токена.

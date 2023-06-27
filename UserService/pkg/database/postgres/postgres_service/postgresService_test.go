@@ -4,15 +4,14 @@ import (
 	"errors"
 	"log"
 	"regexp"
+	"userService/pkg/database"
+	postgresservice "userService/pkg/database/postgres/postgres_service"
+	"userService/pkg/model"
 
 	"github.com/jmoiron/sqlx"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	sqlmock "github.com/zhashkevych/go-sqlxmock"
-
-	"userService/internal/database"
-	postgresservice "userService/internal/database/postgres/postgres_service"
-	"userService/internal/model"
 )
 
 var _ = Describe("PostgresService", func() {
@@ -198,7 +197,7 @@ var _ = Describe("PostgresService", func() {
 		Context("testing GetByUsername", func() {
 			It("regular", func() {
 				mockBehavior := func(username string) {
-					row := sqlmock.NewRows([]string{"password","firstname","lastname","surname","user_group","balance","role"}).
+					row := sqlmock.NewRows([]string{"password", "firstname", "lastname", "surname", "user_group", "balance", "role"}).
 						AddRow("1234", "m", "m", "m", "g-12", "500", "admin")
 
 					mock.ExpectQuery(regexp.QuoteMeta("SELECT password,firstname,lastname,surname,user_group,balance,role FROM users WHERE username=$1")).
@@ -226,7 +225,7 @@ var _ = Describe("PostgresService", func() {
 			})
 			It("error", func() {
 				mockBehavior := func(username string) {
-					row := sqlmock.NewRows([]string{"password","firstname","lastname","surname","user_group","balance","role"}).
+					row := sqlmock.NewRows([]string{"password", "firstname", "lastname", "surname", "user_group", "balance", "role"}).
 						AddRow("1234", "m", "m", "m", "g-12", "500", "admin")
 
 					mock.ExpectQuery(regexp.QuoteMeta("SELECT password,firstname,lastname,surname,user_group,balance,role FROM users WHERE username=$1")).

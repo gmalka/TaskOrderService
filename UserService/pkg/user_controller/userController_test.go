@@ -2,18 +2,18 @@ package usercontroller_test
 
 import (
 	"errors"
+	"userService/pkg/model"
+	usercontroller "userService/pkg/user_controller"
 
 	. "github.com/gcapizzi/moka"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"userService/internal/model"
-	usercontroller "userService/internal/user_controller"
 )
 
 var _ = Describe("UserController", func() {
 	var (
 		uc UcDouble
+
 		c  usercontroller.Controller
 	)
 

@@ -1,10 +1,10 @@
 package tokenManager_test
 
 import (
+	"userService/auth/tokenManager"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"userService/internal/auth/tokenManager"
 )
 
 var _ = Describe("TokenManager", func() {

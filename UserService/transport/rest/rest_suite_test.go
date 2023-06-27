@@ -3,8 +3,8 @@ package rest_test
 import (
 	"testing"
 	"time"
-	"userService/internal/auth/tokenManager"
-	"userService/internal/model"
+	"userService/auth/tokenManager"
+	"userService/pkg/model"
 
 	. "github.com/gcapizzi/moka"
 	. "github.com/onsi/ginkgo/v2"
@@ -39,7 +39,7 @@ func (uc UserControllerDouble) GetUser(username string) (model.UserWithRole, err
 	returnVal, _ := uc.Call("GetUser", username)
 	rFirst, _ := returnVal[0].(model.UserWithRole)
 	rSecond, _ := returnVal[1].(error)
-	return rFirst, rSecond 
+	return rFirst, rSecond
 }
 
 func (uc UserControllerDouble) GetAllUsernames() ([]string, error) {

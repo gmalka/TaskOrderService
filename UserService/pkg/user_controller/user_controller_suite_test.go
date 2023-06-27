@@ -2,7 +2,7 @@ package usercontroller_test
 
 import (
 	"testing"
-	"userService/internal/model"
+	"userService/pkg/model"
 
 	. "github.com/gcapizzi/moka"
 	. "github.com/onsi/ginkgo/v2"

@@ -5,8 +5,9 @@ import (
 	"log"
 	"net"
 	"userService/build/proto"
-	"userService/internal/model"
-	mygrpc "userService/internal/transport/grpc"
+	"userService/pkg/model"
+
+	mygrpc "userService/transport/grpc"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -90,10 +91,10 @@ var _ = Describe("Mygrpc", func() {
 
 		Context("test CreateNewTask", func() {
 			It("regular", func() {
-				Expect(cli.CreateNewTask(model.Task{Id: 1, Count: 2, Heights: []int64{1,2}, Price: 400, Answer: 2})).Should(Succeed())
+				Expect(cli.CreateNewTask(model.Task{Id: 1, Count: 2, Heights: []int64{1, 2}, Price: 400, Answer: 2})).Should(Succeed())
 			})
 			It("error", func() {
-				Expect(cli.CreateNewTask(model.Task{Id: 2, Count: 2, Heights: []int64{1,2}, Price: 400, Answer: 2})).ShouldNot(Succeed())
+				Expect(cli.CreateNewTask(model.Task{Id: 2, Count: 2, Heights: []int64{1, 2}, Price: 400, Answer: 2})).ShouldNot(Succeed())
 			})
 		})
 

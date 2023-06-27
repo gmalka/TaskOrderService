@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 	"userService/build/proto"
-	"userService/internal/model"
+	"userService/pkg/model"
 
 	"google.golang.org/grpc"
 )
