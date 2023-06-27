@@ -1,7 +1,6 @@
 package database
 
-import "taskServer/model"
-
+import "TaskService/pkg/model"
 
 type DatabaseService interface {
 	GetAllTasks() ([]model.Task, error)

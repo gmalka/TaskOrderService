@@ -1,7 +1,7 @@
 package mygrpc_test
 
 import (
-	"taskServer/model"
+	"TaskService/pkg/model"
 	"testing"
 
 	. "github.com/gcapizzi/moka"

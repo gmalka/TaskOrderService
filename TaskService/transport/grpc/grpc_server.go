@@ -1,11 +1,11 @@
 package mygrpc
 
 import (
+	"TaskService/build/proto"
+	"TaskService/pkg/database"
+	"TaskService/pkg/model"
 	"context"
 	"log"
-	"taskServer/build/proto"
-	"taskServer/database"
-	"taskServer/model"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

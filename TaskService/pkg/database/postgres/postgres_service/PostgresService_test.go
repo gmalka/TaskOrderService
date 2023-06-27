@@ -1,6 +1,9 @@
 package postgresservice_test
 
 import (
+	"TaskService/pkg/database"
+	postgresservice "TaskService/pkg/database/postgres/postgres_service"
+	"TaskService/pkg/model"
 	"database/sql"
 	"errors"
 	"log"
@@ -11,10 +14,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	sqlmock "github.com/zhashkevych/go-sqlxmock"
-
-	"taskServer/database"
-	postgresservice "taskServer/database/postgres/postgres_service"
-	"taskServer/model"
 )
 
 var _ = Describe("PostgresService", func() {
@@ -343,7 +342,7 @@ var _ = Describe("PostgresService", func() {
 
 				task := model.UsersPurchase{
 					Username: "root",
-					OrderId: 1,
+					OrderId:  1,
 				}
 				mockBehavior(task)
 				Expect(r.BuyTaskAnswer(task)).Should(Succeed())
@@ -359,7 +358,7 @@ var _ = Describe("PostgresService", func() {
 
 				task := model.UsersPurchase{
 					Username: "root",
-					OrderId: 1,
+					OrderId:  1,
 				}
 				mockBehavior(task)
 				Expect(r.BuyTaskAnswer(task)).ShouldNot(Succeed())

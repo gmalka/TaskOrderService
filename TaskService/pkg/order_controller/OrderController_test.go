@@ -1,14 +1,13 @@
 package ordercontroller_test
 
 import (
+	"TaskService/pkg/model"
+	ordercontroller "TaskService/pkg/order_controller"
 	"errors"
 
 	. "github.com/gcapizzi/moka"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"taskServer/model"
-	ordercontroller "taskServer/order_controller"
 )
 
 var _ = Describe("OrderController", func() {
@@ -171,11 +170,11 @@ var _ = Describe("OrderController", func() {
 					Expect(err).ShouldNot(Succeed())
 				})
 			})
-			
+
 			Context("testing BuyTaskAnswer", func() {
 				It("regular", func() {
 					want := model.UsersPurchase{Username: "root", OrderId: 1}
-					
+
 					AllowDouble(db).To(ReceiveCallTo("BuyTaskAnswer").With(want).AndReturn(nil))
 
 					Expect(c.BuyTaskAnswer(want)).Should(Succeed())

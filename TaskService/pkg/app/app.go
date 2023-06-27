@@ -1,6 +1,11 @@
 package app
 
 import (
+	"TaskService/pkg/database/postgres"
+	postgresservice "TaskService/pkg/database/postgres/postgres_service"
+	ordercontroller "TaskService/pkg/order_controller"
+	mygrpc "TaskService/transport/grpc"
+	"TaskService/transport/rest"
 	"context"
 	"fmt"
 	"log"
@@ -9,9 +14,6 @@ import (
 	"os"
 	"os/signal"
 	"time"
-	"userService/pkg/database/postgres"
-	postgresservice "userService/pkg/database/postgres/postgres_service"
-	"userService/transport/rest"
 
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -31,13 +33,7 @@ func Run() {
 		Sslmode:  os.Getenv("DB_SSLMODE"),
 	}
 
-	loggerErr := log.New(os.Stderr, "ERROR:\t ", log.Lshortfile|log.Ltime)
-	loggerInfo := log.New(os.Stdout, "INFO:\t ", log.Lshortfile|log.Ltime)
-
-	log := rest.Log{
-		Err: loggerErr,
-		Inf: loggerInfo,
-	}
+	log := NewLogger()
 
 	db, err := postgres.NewPostgresConnection(config)
 	if err != nil {
@@ -48,7 +44,7 @@ func Run() {
 
 	service := postgresservice.NewPostgresService(db)
 	ordercontroller := ordercontroller.NewUserController(service)
-	list, err := net.Listen("tcp", fmt.Sprintf("%s:%s", os.Getenv("GRPC_URL"), os.Getenv("GRPC_PORT")))
+	list, _ := net.Listen("tcp", fmt.Sprintf("%s:%s", os.Getenv("GRPC_URL"), os.Getenv("GRPC_PORT")))
 
 	grpcServer := mygrpc.NewGrpcServer(ordercontroller, mygrpc.Log(log))
 
@@ -56,6 +52,18 @@ func Run() {
 
 	RunServer(fmt.Sprintf("%s:%s", os.Getenv("REST_URL"), os.Getenv("REST_PORT")),
 		list, h.InitRouter(false), grpcServer, log)
+}
+
+func NewLogger() rest.Log {
+	loggerErr := log.New(os.Stderr, "ERROR:\t ", log.Lshortfile|log.Ltime)
+	loggerInfo := log.New(os.Stdout, "INFO:\t ", log.Lshortfile|log.Ltime)
+
+	log := rest.Log{
+		Err: loggerErr,
+		Inf: loggerInfo,
+	}
+
+	return log
 }
 
 func RunServer(addr string, list net.Listener, h http.Handler, grpsServ *grpc.Server, log rest.Log) {

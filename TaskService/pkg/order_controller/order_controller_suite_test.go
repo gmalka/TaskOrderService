@@ -1,14 +1,13 @@
 package ordercontroller_test
 
 import (
-	"taskServer/model"
+	"TaskService/pkg/model"
 	"testing"
 
 	. "github.com/gcapizzi/moka"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
-
 
 type DatabaseService interface {
 	GetAllTasks() ([]model.Task, error)
@@ -38,39 +37,39 @@ func TestOrderController(t *testing.T) {
 	RunSpecs(t, "OrderController Suite")
 }
 
-func (d DbDouble) GetAllTasks() ([]model.Task, error){
+func (d DbDouble) GetAllTasks() ([]model.Task, error) {
 	returnVal, _ := d.Call("GetAllTasks")
 	rFirst, _ := returnVal[0].([]model.Task)
 	rSecond, _ := returnVal[1].(error)
 	return rFirst, rSecond
 }
 
-func (d DbDouble) CreateTask(task model.Task) error{
+func (d DbDouble) CreateTask(task model.Task) error {
 	returnVal, _ := d.Call("CreateTask", task)
 	rFirst, _ := returnVal[0].(error)
 	return rFirst
 }
 
-func (d DbDouble) CheckAndGetTask(username string, id int) (model.Task, error){
+func (d DbDouble) CheckAndGetTask(username string, id int) (model.Task, error) {
 	returnVal, _ := d.Call("CheckAndGetTask", username, id)
 	rFirst, _ := returnVal[0].(model.Task)
 	rSecond, _ := returnVal[1].(error)
 	return rFirst, rSecond
 }
 
-func (d DbDouble) ChangeTaskPrice(id int, price int) error{
+func (d DbDouble) ChangeTaskPrice(id int, price int) error {
 	returnVal, _ := d.Call("ChangeTaskPrice", id, price)
 	rFirst, _ := returnVal[0].(error)
 	return rFirst
 }
 
-func (d DbDouble) DeleteTask(id int) error{
+func (d DbDouble) DeleteTask(id int) error {
 	returnVal, _ := d.Call("DeleteTask", id)
 	rFirst, _ := returnVal[0].(error)
 	return rFirst
 }
 
-func (d DbDouble) GetAllTasksOfUser(username string, page int) ([]model.Task, error){
+func (d DbDouble) GetAllTasksOfUser(username string, page int) ([]model.Task, error) {
 	returnVal, _ := d.Call("GetAllTasksOfUser", username, page)
 	rFirst, _ := returnVal[0].([]model.Task)
 	rSecond, _ := returnVal[1].(error)

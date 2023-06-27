@@ -1,6 +1,6 @@
 package handlers
 
-import "userService/pkg/model"
+import "TaskService/pkg/model"
 
 // swagger:route GET / GetTasksRequest
 // Admin: Получение всех задач.

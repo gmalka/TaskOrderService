@@ -1,10 +1,10 @@
 package postgresservice
 
 import (
+	"TaskService/pkg/database"
+	"TaskService/pkg/model"
 	"database/sql"
 	"fmt"
-	"taskServer/database"
-	"taskServer/model"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"

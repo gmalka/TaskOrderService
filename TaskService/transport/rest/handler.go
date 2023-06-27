@@ -1,14 +1,15 @@
 package rest
 
 import (
+	"TaskService/pkg/model"
+	ordercontroller "TaskService/pkg/order_controller"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
-	"taskServer/model"
-	ordercontroller "taskServer/order_controller"
+
 	"text/template"
 	"time"
 

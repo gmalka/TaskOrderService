@@ -1,15 +1,15 @@
 package mygrpc_test
 
 import (
+	"TaskService/build/proto"
+	"TaskService/pkg/model"
+	mygrpc "TaskService/transport/grpc"
 	"context"
 	"errors"
 	"io"
 	"io/ioutil"
 	"log"
 	"net"
-	"taskServer/build/proto"
-	"taskServer/model"
-	mygrpc "taskServer/transport/grpc"
 
 	. "github.com/gcapizzi/moka"
 	. "github.com/onsi/ginkgo/v2"

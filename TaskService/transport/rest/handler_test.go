@@ -1,14 +1,14 @@
 package rest_test
 
 import (
+	"TaskService/pkg/model"
+	"TaskService/transport/rest"
 	"bytes"
 	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"taskServer/model"
-	"taskServer/transport/rest"
 
 	. "github.com/gcapizzi/moka"
 	. "github.com/onsi/ginkgo/v2"

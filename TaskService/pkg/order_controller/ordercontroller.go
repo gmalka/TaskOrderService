@@ -1,8 +1,8 @@
 package ordercontroller
 
 import (
-	"taskServer/database"
-	"taskServer/model"
+	"TaskService/pkg/database"
+	"TaskService/pkg/model"
 )
 
 type Controller interface {
@@ -18,7 +18,7 @@ type Controller interface {
 }
 
 type orderController struct {
-	db    database.DatabaseService
+	db database.DatabaseService
 }
 
 func NewUserController(db database.DatabaseService) Controller {
