@@ -20,7 +20,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.16
+          go-version: 1.15
 
       - name: Install dependencies for UserService
         run: cd UserService && go get -v -t ./...
@@ -38,7 +38,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.16
+          go-version: 1.15
 
       - name: Install dependencies for TaskService
         run: cd TaskService && go get -v -t ./...
