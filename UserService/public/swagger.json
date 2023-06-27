@@ -275,47 +275,9 @@
             "$ref": "#/responses/StatusBadRequest"
           }
         }
-      },
-      "patch": {
-        "security": [
-          {
-            "Bearer": [
-              "[]"
-            ]
-          }
-        ],
-        "tags": [
-          "admin"
-        ],
-        "summary": "Admin: Изменение баланса пользователя.",
-        "operationId": "ChangeBalanceRequest",
-        "parameters": [
-          {
-            "type": "string",
-            "x-go-name": "Username",
-            "name": "username",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "Body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/BalanceChange"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/responses/ChangeBalanceResponse"
-          },
-          "400": {
-            "$ref": "#/responses/StatusBadRequest"
-          }
-        }
       }
     },
-    "/users/{username}/orders": {
+    "/users/{username}/admin": {
       "get": {
         "security": [
           {
@@ -423,6 +385,84 @@
             "$ref": "#/responses/StatusBadRequest"
           }
         }
+      },
+      "patch": {
+        "security": [
+          {
+            "Bearer": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin: Изменение баланса пользователя.",
+        "operationId": "ChangeBalanceRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/BalanceChange"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ChangeBalanceResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
+      }
+    },
+    "/users/{username}/admin/{taskId}": {
+      "delete": {
+        "security": [
+          {
+            "Bearer": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin: Удаление задачи.",
+        "operationId": "DeleteTaskRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "TaskId",
+            "name": "taskId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/DeleteTaskResponse"
+          },
+          "400": {
+            "$ref": "#/responses/StatusBadRequest"
+          }
+        }
       }
     },
     "/users/{username}/orders/purchased/{page}": {
@@ -459,46 +499,6 @@
         "responses": {
           "200": {
             "$ref": "#/responses/GetUsersOrdersResponse"
-          },
-          "400": {
-            "$ref": "#/responses/StatusBadRequest"
-          }
-        }
-      }
-    },
-    "/users/{username}/orders/{taskId}": {
-      "delete": {
-        "security": [
-          {
-            "Bearer": [
-              "[]"
-            ]
-          }
-        ],
-        "tags": [
-          "admin"
-        ],
-        "summary": "Admin: Удаление задачи.",
-        "operationId": "DeleteTaskRequest",
-        "parameters": [
-          {
-            "type": "string",
-            "x-go-name": "Username",
-            "name": "username",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "x-go-name": "TaskId",
-            "name": "taskId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/responses/DeleteTaskResponse"
           },
           "400": {
             "$ref": "#/responses/StatusBadRequest"

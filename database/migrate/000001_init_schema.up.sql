@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     id serial PRIMARY KEY,
     quantity INTEGER NOT NULL CHECK(quantity >= 0),
     heights  INTEGER[] NOT NULL,
-    price INTEGER NOT NULL CHECK(price >= 0),
+    price INTEGER NOT NULL CHECK(price > 0),
     answer INTEGER NOT NULL CHECK(answer >= 0)
 );
 

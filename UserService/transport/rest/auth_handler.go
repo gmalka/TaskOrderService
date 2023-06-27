@@ -117,8 +117,8 @@ func (h Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(user.Username) < 4 || len(user.Password) < 4 {
-		h.logger.Err.Printf("register with short data: %v\n", err.Error())
-		http.Error(w, "message: too short data", http.StatusBadRequest)
+		h.logger.Err.Println("register with short data")
+		http.Error(w, "message: too short password or username, must be at least 4 length", http.StatusBadRequest)
 		return
 	}
 
