@@ -542,7 +542,7 @@ var _ = Describe("Handler", func() {
 					AllowDouble(db).To(ReceiveCallTo("UpdateBalance").With("root", 2000).AndReturn(nil))
 
 					res := httptest.NewRecorder()
-					req, _ := http.NewRequest("PATCH", "/users/root", bytes.NewReader([]byte(`{"username":"root","money":2000}`)))
+					req, _ := http.NewRequest("PATCH", "/users/root/admin", bytes.NewReader([]byte(`{"username":"root","money":2000}`)))
 					req.Header.Add("Authorization", "Bearer 54321")
 					h.InitRouter(false).ServeHTTP(res, req)
 
@@ -558,7 +558,7 @@ var _ = Describe("Handler", func() {
 					}, nil))
 
 					res := httptest.NewRecorder()
-					req, _ := http.NewRequest("PATCH", "/users/root", bytes.NewReader([]byte(`{"username":"root","money":2000}`)))
+					req, _ := http.NewRequest("PATCH", "/users/root/admin", bytes.NewReader([]byte(`{"username":"root","money":2000}`)))
 					req.Header.Add("Authorization", "Bearer 54321")
 					h.InitRouter(false).ServeHTTP(res, req)
 
@@ -581,7 +581,7 @@ var _ = Describe("Handler", func() {
 					}, nil))
 
 					res := httptest.NewRecorder()
-					req, _ := http.NewRequest("GET", "/users/root/orders/purchased/1", nil)
+					req, _ := http.NewRequest("GET", "/users/root/admin/purchased/1", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
 					h.InitRouter(false).ServeHTTP(res, req)
 
@@ -603,7 +603,7 @@ var _ = Describe("Handler", func() {
 					}, nil))
 
 					res := httptest.NewRecorder()
-					req, _ := http.NewRequest("GET", "/users/root/orders", nil)
+					req, _ := http.NewRequest("GET", "/users/root/admin", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
 					h.InitRouter(false).ServeHTTP(res, req)
 
@@ -623,7 +623,7 @@ var _ = Describe("Handler", func() {
 					AllowDouble(mygrpc).To(ReceiveCallTo("UpdatePriceOfTask").With(1, 1500).AndReturn(nil))
 
 					res := httptest.NewRecorder()
-					req, _ := http.NewRequest("PUT", "/users/root/orders", bytes.NewReader([]byte(`{"taskId":1,"balance":1500}`)))
+					req, _ := http.NewRequest("PUT", "/users/root/admin", bytes.NewReader([]byte(`{"taskId":1,"balance":1500}`)))
 					req.Header.Add("Authorization", "Bearer 54321")
 					h.InitRouter(false).ServeHTTP(res, req)
 
@@ -642,7 +642,7 @@ var _ = Describe("Handler", func() {
 					AllowDouble(mygrpc).To(ReceiveCallTo("CreateNewTask").With(model.TaskWithoutAnswer{Id: 1, Count: 2, Heights: []int64{1, 2}, Price: 400}).AndReturn(nil))
 
 					res := httptest.NewRecorder()
-					req, _ := http.NewRequest("POST", "/users/root/orders", bytes.NewReader([]byte(`{"id":1,"count":2,"heights":[1,2],"price":400,"answer":2}`)))
+					req, _ := http.NewRequest("POST", "/users/root/admin", bytes.NewReader([]byte(`{"id":1,"count":2,"heights":[1,2],"price":400,"answer":2}`)))
 					req.Header.Add("Authorization", "Bearer 54321")
 					h.InitRouter(false).ServeHTTP(res, req)
 
@@ -650,7 +650,7 @@ var _ = Describe("Handler", func() {
 				})
 			})
 
-			Context("test createTask", func() {
+			Context("test deleteTask", func() {
 				It("regular", func() {
 					AllowDouble(tok).To(ReceiveCallTo("ParseToken").With("54321", 2).AndReturn(tokenManager.UserClaims{
 						Username:  "root",
@@ -661,7 +661,7 @@ var _ = Describe("Handler", func() {
 					AllowDouble(mygrpc).To(ReceiveCallTo("DeleteTask").With(1).AndReturn(nil))
 
 					res := httptest.NewRecorder()
-					req, _ := http.NewRequest("DELETE", "/users/root/orders/1", nil)
+					req, _ := http.NewRequest("DELETE", "/users/root/admin/1", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
 					h.InitRouter(false).ServeHTTP(res, req)
 				})
