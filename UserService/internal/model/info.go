@@ -1,8 +1,8 @@
 package model
 
 type AuthInfo struct {
-	Access  string `json:"Refresh"`
-	Refresh string `json:"Access"`
+	Access  string `json:"Access"`
+	Refresh string `json:"Refresh"`
 }
 
 type ResponseMessage struct {

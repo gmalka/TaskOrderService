@@ -44,7 +44,7 @@ type UserInfo struct {
 	Firstname string `json:"firstname"`
 	Lastname  string `json:"lastname"`
 	Surname   string `json:"surname"`
-	Group     string `json:"user_group"`
+	Group     string `json:"group"`
 	Balance   int    `json:"balance"`
 }
 
@@ -52,5 +52,5 @@ type UserInfoWithoutBalance struct {
 	Firstname string `json:"firstname"`
 	Lastname  string `json:"lastname"`
 	Surname   string `json:"surname"`
-	Group     string `json:"user_group"`
+	Group     string `json:"group"`
 }

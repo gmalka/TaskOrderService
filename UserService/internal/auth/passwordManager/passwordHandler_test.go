@@ -1,17 +1,17 @@
-package passwordHandler_test
+package passwordManager_test
 
 import (
+	passwordManger "userService/internal/auth/passwordManager"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"golang.org/x/crypto/bcrypt"
-
-	"userService/internal/auth/passwordHandler"
 )
 
 var _ = Describe("PasswordHandler", func() {
-	var passworder passwordHandler.PasswordHandler
+	var passworder passwordManger.PasswordManager
 	BeforeEach(func() {
-		passworder = passwordHandler.NewPasswordManager()
+		passworder = passwordManger.NewPasswordManager()
 	})
 	Context("passwordHandler", func() {
 		Context("HashPassword", func() {

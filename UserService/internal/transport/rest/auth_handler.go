@@ -37,7 +37,7 @@ func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.p.CheckPassword(userAuth.Password, user.User.Password); err != nil {
+	if err := h.passManager.CheckPassword(userAuth.Password, user.User.Password); err != nil {
 		h.logger.Err.Println(err.Error())
 		http.Error(w, "message: passwords mismatch", http.StatusUnauthorized)
 		return
@@ -116,7 +116,7 @@ func (h Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user.Password, err = h.p.HashPassword(user.Password)
+	user.Password, err = h.passManager.HashPassword(user.Password)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
 		http.Error(w, "message: some server error", http.StatusInternalServerError)
@@ -179,6 +179,7 @@ func (h Handler) checkRefresh(next http.Handler) http.Handler {
 		tokenRaw := r.Header.Get("Authorization")
 
 		tokenParts := strings.Split(tokenRaw, " ")
+
 		if len(tokenParts) < 2 && tokenParts[0] != "Bearer" {
 			h.logger.Err.Printf("wrong authorization: %v\n", tokenParts)
 			http.Error(w, "message: wrong authorization token", http.StatusBadRequest)

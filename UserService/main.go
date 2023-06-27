@@ -8,7 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"time"
-	"userService/internal/auth"
+	"userService/internal/auth/passwordManager"
 	"userService/internal/database/postgres"
 	postgresservice "userService/internal/database/postgres/postgres_service"
 	mygrpc "userService/internal/transport/grpc"
@@ -17,6 +17,8 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
@@ -50,13 +52,25 @@ func main() {
 
 	userDB := postgresservice.NewPostgresService(db)
 	userController := usercontroller.NewUserController(userDB)
-	grpcController, err := mygrpc.NewGrpcClient(os.Getenv("GRPC_URL"), os.Getenv("GRPC_PORT"))
+
+	// GRPC SETTINGS
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
+	path := fmt.Sprintf("%s:%s", os.Getenv("GRPC_URL"), os.Getenv("GRPC_PORT"))
+	conn, err := grpc.Dial(path, opts...)
+	if err != nil {
+		loggerErr.Println("can't connect by grpc to path %s: %v", path, err)
+		return
+	}
+
+	grpcController, err := mygrpc.NewGrpcClient(conn)
 	if err != nil {
 		log.Err.Println(err)
 		return
 	}
 
-	handler := rest.NewHandler(userController, tokenManager, grpcController, auth.NewPasswordManager(), log)
+	handler := rest.NewHandler(userController, tokenManager, grpcController, passwordManager.NewPasswordManager(), log)
 
 	RunServer(fmt.Sprintf("%s:%s", os.Getenv("URL"), os.Getenv("PORT")), handler.InitRouter(), log)
 }

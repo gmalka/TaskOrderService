@@ -1,4 +1,4 @@
-package passwordHandler_test
+package passwordManager_test
 
 import (
 	"testing"

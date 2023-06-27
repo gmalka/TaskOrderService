@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"userService/internal/auth/passwordHandler"
+	"userService/internal/auth/passwordManager"
 	"userService/internal/auth/tokenManager"
 	"userService/internal/model"
 	mygrpc "userService/internal/transport/grpc"
@@ -64,12 +64,12 @@ type Handler struct {
 	controller   usercontroller.Controller
 	tokenManager tokenManager.TokenManager
 	grpcCli      mygrpc.RemoteOrderClient
-	p            passwordHandler.PasswordHandler
+	passManager  passwordManager.PasswordManager
 	logger       Log
 }
 
-func NewHandler(controller usercontroller.Controller, tokenManager tokenManager.TokenManager, grpcCli mygrpc.RemoteOrderClient, p passwordHandler.PasswordHandler, logger Log) Handler {
-	return Handler{controller: controller, tokenManager: tokenManager, grpcCli: grpcCli, p: p, logger: logger}
+func NewHandler(controller usercontroller.Controller, tokenManager tokenManager.TokenManager, grpcCli mygrpc.RemoteOrderClient, passManager passwordManager.PasswordManager, logger Log) Handler {
+	return Handler{controller: controller, tokenManager: tokenManager, grpcCli: grpcCli, passManager: passManager, logger: logger}
 }
 
 func (h Handler) InitRouter() http.Handler {

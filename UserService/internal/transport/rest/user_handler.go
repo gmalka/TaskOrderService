@@ -75,6 +75,7 @@ func (h Handler) tryToOrderTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(b)
 }
@@ -109,6 +110,7 @@ func (h Handler) getUsersTasks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(fmt.Sprintf("page №%d:\n", pageNum)))
 	w.Write(b)
 }
