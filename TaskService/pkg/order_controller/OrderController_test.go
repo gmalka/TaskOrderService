@@ -42,14 +42,14 @@ var _ = Describe("OrderController", func() {
 
 		Context("testing CreateTask", func() {
 			It("regular", func() {
-				in := model.Task{Id: 1, Count: 2, Heights: []int64{1, 2}, Price: 500, Answer: 15}
+				in := model.Task{Id: 1, Count: 2, Heights: []int64{1, 2, 0, 4}, Price: 500, Answer: 2}
 
 				AllowDouble(db).To(ReceiveCallTo("CreateTask").With(in).AndReturn(nil))
 
 				Expect(c.CreateTask(in)).Should(Succeed())
 			})
 			It("error", func() {
-				in := model.Task{Id: 1, Count: 2, Heights: []int64{1, 2}, Price: 500, Answer: 15}
+				in := model.Task{Id: 1, Count: 2, Heights: []int64{1, 2, 3}, Price: 500, Answer: 0}
 				AllowDouble(db).To(ReceiveCallTo("CreateTask").With(in).AndReturn(errors.New("some error")))
 
 				err := c.CreateTask(in)

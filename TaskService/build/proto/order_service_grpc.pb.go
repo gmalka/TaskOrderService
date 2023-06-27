@@ -40,7 +40,7 @@ type TaskOrderServiceClient interface {
 	GetAllTasksWithoutAnswers(ctx context.Context, in *Page, opts ...grpc.CallOption) (TaskOrderService_GetAllTasksWithoutAnswersClient, error)
 	CheckAndGetTask(ctx context.Context, in *UsernameAndId, opts ...grpc.CallOption) (*TaskOrderInfo, error)
 	BuyTaskAnswer(ctx context.Context, in *UsernameAndId, opts ...grpc.CallOption) (*None, error)
-	CreateNewTask(ctx context.Context, in *Task, opts ...grpc.CallOption) (*None, error)
+	CreateNewTask(ctx context.Context, in *TaskWithoutAnswer, opts ...grpc.CallOption) (*None, error)
 	UpdatePriceOfTask(ctx context.Context, in *TaskForUpdate, opts ...grpc.CallOption) (*None, error)
 	DeleteOrdersForUser(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*None, error)
 	DeleteTask(ctx context.Context, in *OrderTask, opts ...grpc.CallOption) (*None, error)
@@ -169,7 +169,7 @@ func (c *taskOrderServiceClient) BuyTaskAnswer(ctx context.Context, in *Username
 	return out, nil
 }
 
-func (c *taskOrderServiceClient) CreateNewTask(ctx context.Context, in *Task, opts ...grpc.CallOption) (*None, error) {
+func (c *taskOrderServiceClient) CreateNewTask(ctx context.Context, in *TaskWithoutAnswer, opts ...grpc.CallOption) (*None, error) {
 	out := new(None)
 	err := c.cc.Invoke(ctx, TaskOrderService_CreateNewTask_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -223,7 +223,7 @@ type TaskOrderServiceServer interface {
 	GetAllTasksWithoutAnswers(*Page, TaskOrderService_GetAllTasksWithoutAnswersServer) error
 	CheckAndGetTask(context.Context, *UsernameAndId) (*TaskOrderInfo, error)
 	BuyTaskAnswer(context.Context, *UsernameAndId) (*None, error)
-	CreateNewTask(context.Context, *Task) (*None, error)
+	CreateNewTask(context.Context, *TaskWithoutAnswer) (*None, error)
 	UpdatePriceOfTask(context.Context, *TaskForUpdate) (*None, error)
 	DeleteOrdersForUser(context.Context, *UserId) (*None, error)
 	DeleteTask(context.Context, *OrderTask) (*None, error)
@@ -250,7 +250,7 @@ func (UnimplementedTaskOrderServiceServer) CheckAndGetTask(context.Context, *Use
 func (UnimplementedTaskOrderServiceServer) BuyTaskAnswer(context.Context, *UsernameAndId) (*None, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BuyTaskAnswer not implemented")
 }
-func (UnimplementedTaskOrderServiceServer) CreateNewTask(context.Context, *Task) (*None, error) {
+func (UnimplementedTaskOrderServiceServer) CreateNewTask(context.Context, *TaskWithoutAnswer) (*None, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateNewTask not implemented")
 }
 func (UnimplementedTaskOrderServiceServer) UpdatePriceOfTask(context.Context, *TaskForUpdate) (*None, error) {
@@ -378,7 +378,7 @@ func _TaskOrderService_BuyTaskAnswer_Handler(srv interface{}, ctx context.Contex
 }
 
 func _TaskOrderService_CreateNewTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Task)
+	in := new(TaskWithoutAnswer)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -390,7 +390,7 @@ func _TaskOrderService_CreateNewTask_Handler(srv interface{}, ctx context.Contex
 		FullMethod: TaskOrderService_CreateNewTask_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TaskOrderServiceServer).CreateNewTask(ctx, req.(*Task))
+		return srv.(TaskOrderServiceServer).CreateNewTask(ctx, req.(*TaskWithoutAnswer))
 	}
 	return interceptor(ctx, in, info, handler)
 }

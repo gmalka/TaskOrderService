@@ -91,10 +91,10 @@ var _ = Describe("Mygrpc", func() {
 
 		Context("test CreateNewTask", func() {
 			It("regular", func() {
-				Expect(cli.CreateNewTask(model.Task{Id: 1, Count: 2, Heights: []int64{1, 2}, Price: 400, Answer: 2})).Should(Succeed())
+				Expect(cli.CreateNewTask(model.TaskWithoutAnswer{Id: 1, Count: 2, Heights: []int64{1, 2}, Price: 400})).Should(Succeed())
 			})
 			It("error", func() {
-				Expect(cli.CreateNewTask(model.Task{Id: 2, Count: 2, Heights: []int64{1, 2}, Price: 400, Answer: 2})).ShouldNot(Succeed())
+				Expect(cli.CreateNewTask(model.TaskWithoutAnswer{Id: 2, Count: 2, Heights: []int64{1, 2}, Price: 400})).ShouldNot(Succeed())
 			})
 		})
 

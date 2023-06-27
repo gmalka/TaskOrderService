@@ -225,7 +225,7 @@ func (h Handler) deleteTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handler) createTask(w http.ResponseWriter, r *http.Request) {
-	var task model.Task
+	var task model.TaskWithoutAnswer
 
 	u, ok := r.Context().Value(UserRequest{}).(tokenManager.UserClaims)
 	if !ok {

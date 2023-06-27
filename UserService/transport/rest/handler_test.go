@@ -639,7 +639,7 @@ var _ = Describe("Handler", func() {
 						Firstname: "m",
 						Lastname:  "m",
 					}, nil))
-					AllowDouble(mygrpc).To(ReceiveCallTo("CreateNewTask").With(model.Task{Id: 1, Count: 2, Heights: []int64{1, 2}, Price: 400, Answer: 2}).AndReturn(nil))
+					AllowDouble(mygrpc).To(ReceiveCallTo("CreateNewTask").With(model.TaskWithoutAnswer{Id: 1, Count: 2, Heights: []int64{1, 2}, Price: 400}).AndReturn(nil))
 
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("POST", "/users/root/orders", bytes.NewReader([]byte(`{"id":1,"count":2,"heights":[1,2],"price":400,"answer":2}`)))

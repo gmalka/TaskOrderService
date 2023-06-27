@@ -90,7 +90,7 @@ func (g GrpcServiceDouble) UpdatePriceOfTask(id, price int) error {
 	return rFirst
 }
 
-func (g GrpcServiceDouble) CreateNewTask(task model.Task) error {
+func (g GrpcServiceDouble) CreateNewTask(task model.TaskWithoutAnswer) error {
 	returnVal, _ := g.Call("CreateNewTask", task)
 	rFirst, _ := returnVal[0].(error)
 	return rFirst

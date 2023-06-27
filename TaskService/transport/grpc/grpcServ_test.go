@@ -84,6 +84,7 @@ var _ = Describe("GrpcServ", func() {
 						Price:   int(resp.Price),
 						Answer:  int(resp.Answer),
 					})
+					break
 				}
 
 				Expect(result).To(Equal(wanted))
@@ -119,7 +120,7 @@ var _ = Describe("GrpcServ", func() {
 				Expect(err).Should(Succeed())
 
 				result := make([]model.TaskWithoutAnswer, 0, 10)
-				for {
+				for i := 0; i < 2; i++ {
 					resp, err := req.Recv()
 					if err == io.EOF {
 						break
@@ -151,7 +152,7 @@ var _ = Describe("GrpcServ", func() {
 					}
 
 					Expect(err).ShouldNot(Succeed())
-					return
+					break
 				}
 			})
 		})
@@ -170,7 +171,7 @@ var _ = Describe("GrpcServ", func() {
 				Expect(err).Should(Succeed())
 
 				result := make([]model.Task, 0, 10)
-				for {
+				for i := 0; i < 2; i++ {
 					resp, err := req.Recv()
 					if err == io.EOF {
 						break
@@ -262,15 +263,14 @@ var _ = Describe("GrpcServ", func() {
 					Count:   4,
 					Heights: []int64{1, 2, 3, 4},
 					Price:   500,
-					Answer:  2,
+					Answer:  0,
 				}
 				AllowDouble(controller).To(ReceiveCallTo("CreateTask").With(in).AndReturn(nil))
-				_, err := client.CreateNewTask(context.Background(), &proto.Task{
+				_, err := client.CreateNewTask(context.Background(), &proto.TaskWithoutAnswer{
 					Id:     int64(in.Id),
 					Count:  int64(in.Count),
 					Height: in.Heights,
 					Price:  int64(in.Price),
-					Answer: int64(in.Answer),
 				})
 
 				Expect(err).Should(Succeed())
@@ -281,15 +281,14 @@ var _ = Describe("GrpcServ", func() {
 					Count:   4,
 					Heights: []int64{1, 2, 3, 4},
 					Price:   500,
-					Answer:  2,
+					Answer:  0,
 				}
 				AllowDouble(controller).To(ReceiveCallTo("CreateTask").With(in).AndReturn(errors.New("some error")))
-				_, err := client.CreateNewTask(context.Background(), &proto.Task{
+				_, err := client.CreateNewTask(context.Background(), &proto.TaskWithoutAnswer{
 					Id:     int64(in.Id),
 					Count:  int64(in.Count),
 					Height: in.Heights,
 					Price:  int64(in.Price),
-					Answer: int64(in.Answer),
 				})
 
 				Expect(err).ShouldNot(Succeed())

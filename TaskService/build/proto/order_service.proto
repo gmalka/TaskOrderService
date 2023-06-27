@@ -10,7 +10,7 @@ service TaskOrderService {
     rpc getAllTasksWithoutAnswers(Page) returns (stream TaskWithoutAnswer);
     rpc CheckAndGetTask(UsernameAndId) returns (TaskOrderInfo);
     rpc buyTaskAnswer(UsernameAndId) returns (None);
-    rpc createNewTask(Task) returns (None);
+    rpc createNewTask(TaskWithoutAnswer) returns (None);
     rpc updatePriceOfTask(TaskForUpdate) returns (None);
     rpc deleteOrdersForUser(UserId) returns (None);
     rpc deleteTask(OrderTask) returns (None);

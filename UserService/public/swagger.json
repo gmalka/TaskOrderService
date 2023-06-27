@@ -411,7 +411,7 @@
             "name": "task",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/Task"
+              "$ref": "#/definitions/TaskWithoutAnswer"
             }
           }
         ],
@@ -512,15 +512,13 @@
       "type": "object",
       "properties": {
         "Access": {
-          "type": "string",
-          "x-go-name": "Refresh"
+          "type": "string"
         },
         "Refresh": {
-          "type": "string",
-          "x-go-name": "Access"
+          "type": "string"
         }
       },
-      "x-go-package": "userService/internal/model"
+      "x-go-package": "userService/pkg/model"
     },
     "BalanceChange": {
       "type": "object",
@@ -535,7 +533,7 @@
           "x-go-name": "Username"
         }
       },
-      "x-go-package": "userService/internal/model"
+      "x-go-package": "userService/pkg/model"
     },
     "ResponseMessage": {
       "type": "object",
@@ -545,7 +543,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "userService/internal/model"
+      "x-go-package": "userService/pkg/model"
     },
     "Task": {
       "type": "object",
@@ -579,7 +577,7 @@
           "x-go-name": "Price"
         }
       },
-      "x-go-package": "userService/internal/model"
+      "x-go-package": "userService/pkg/model"
     },
     "TaskAnswer": {
       "type": "object",
@@ -590,7 +588,7 @@
           "x-go-name": "Answer"
         }
       },
-      "x-go-package": "userService/internal/model"
+      "x-go-package": "userService/pkg/model"
     },
     "TaskWithoutAnswer": {
       "type": "object",
@@ -619,7 +617,7 @@
           "x-go-name": "Price"
         }
       },
-      "x-go-package": "userService/internal/model"
+      "x-go-package": "userService/pkg/model"
     },
     "UpdateReuqest": {
       "type": "object",
@@ -635,7 +633,7 @@
           "x-go-name": "TaskId"
         }
       },
-      "x-go-package": "userService/internal/transport/rest"
+      "x-go-package": "userService/transport/rest"
     },
     "UserAuth": {
       "type": "object",
@@ -649,7 +647,7 @@
           "x-go-name": "Username"
         }
       },
-      "x-go-package": "userService/internal/model"
+      "x-go-package": "userService/pkg/model"
     },
     "UserForUpdate": {
       "type": "object",
@@ -666,7 +664,7 @@
           "x-go-name": "Username"
         }
       },
-      "x-go-package": "userService/internal/model"
+      "x-go-package": "userService/pkg/model"
     },
     "UserInfo": {
       "type": "object",
@@ -680,6 +678,10 @@
           "type": "string",
           "x-go-name": "Firstname"
         },
+        "group": {
+          "type": "string",
+          "x-go-name": "Group"
+        },
         "lastname": {
           "type": "string",
           "x-go-name": "Lastname"
@@ -687,13 +689,9 @@
         "surname": {
           "type": "string",
           "x-go-name": "Surname"
-        },
-        "user_group": {
-          "type": "string",
-          "x-go-name": "Group"
         }
       },
-      "x-go-package": "userService/internal/model"
+      "x-go-package": "userService/pkg/model"
     },
     "UserInfoForUpdate": {
       "type": "object",
@@ -715,7 +713,7 @@
           "x-go-name": "Surname"
         }
       },
-      "x-go-package": "userService/internal/model"
+      "x-go-package": "userService/pkg/model"
     },
     "UserInfoWithoutBalance": {
       "type": "object",
@@ -724,6 +722,10 @@
           "type": "string",
           "x-go-name": "Firstname"
         },
+        "group": {
+          "type": "string",
+          "x-go-name": "Group"
+        },
         "lastname": {
           "type": "string",
           "x-go-name": "Lastname"
@@ -731,13 +733,9 @@
         "surname": {
           "type": "string",
           "x-go-name": "Surname"
-        },
-        "user_group": {
-          "type": "string",
-          "x-go-name": "Group"
         }
       },
-      "x-go-package": "userService/internal/model"
+      "x-go-package": "userService/pkg/model"
     },
     "UserWithoutBalance": {
       "type": "object",
@@ -754,7 +752,7 @@
           "x-go-name": "Username"
         }
       },
-      "x-go-package": "userService/internal/model"
+      "x-go-package": "userService/pkg/model"
     }
   },
   "responses": {

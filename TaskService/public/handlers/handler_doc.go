@@ -42,7 +42,7 @@ type GetTaskResponse struct {
 // swagger:parameters CreateTaskRequest
 type CreateTaskRequest struct {
 	// in:body
-	Body model.Task
+	Body model.TaskWithoutAnswer
 }
 
 // swagger:response CreateTaskResponse

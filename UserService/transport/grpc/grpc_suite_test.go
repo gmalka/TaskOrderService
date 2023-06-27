@@ -93,7 +93,7 @@ func (t TestGrpcServerDouble) BuyTaskAnswer(ctx context.Context, req *proto.User
 	return nil, nil
 }
 
-func (t TestGrpcServerDouble) CreateNewTask(ctx context.Context, req *proto.Task) (*proto.None, error) {
+func (t TestGrpcServerDouble) CreateNewTask(ctx context.Context, req *proto.TaskWithoutAnswer) (*proto.None, error) {
 	switch req.Id {
 	case 1:
 		return &proto.None{}, nil

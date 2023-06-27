@@ -32,7 +32,7 @@
             "name": "Body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/Task"
+              "$ref": "#/definitions/TaskWithoutAnswer"
             }
           }
         ],
@@ -155,7 +155,7 @@
           "x-go-name": "Count"
         }
       },
-      "x-go-package": "taskServer/model"
+      "x-go-package": "TaskService/pkg/model"
     },
     "TaskNewPrice": {
       "type": "object",
@@ -171,7 +171,36 @@
           "x-go-name": "Price"
         }
       },
-      "x-go-package": "taskServer/model"
+      "x-go-package": "TaskService/pkg/model"
+    },
+    "TaskWithoutAnswer": {
+      "type": "object",
+      "properties": {
+        "heights": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "x-go-name": "Heights"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Id"
+        },
+        "price": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Price"
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Count"
+        }
+      },
+      "x-go-package": "TaskService/pkg/model"
     }
   },
   "responses": {

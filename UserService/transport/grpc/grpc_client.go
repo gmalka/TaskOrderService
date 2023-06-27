@@ -13,7 +13,7 @@ import (
 
 type RemoteOrderClient interface {
 	UpdatePriceOfTask(id, price int) error
-	CreateNewTask(task model.Task) error
+	CreateNewTask(task model.TaskWithoutAnswer) error
 	CheckAndGetTask(username string, id int) (model.TaskOrderInfo, error)
 	BuyTaskAnswer(username string, taskId int) error
 	GetAllTasks() ([]model.Task, error)
@@ -123,13 +123,12 @@ func (g grpcClient) UpdatePriceOfTask(id, price int) error {
 	return nil
 }
 
-func (g grpcClient) CreateNewTask(task model.Task) error {
-	_, err := g.client.CreateNewTask(context.Background(), &proto.Task{
+func (g grpcClient) CreateNewTask(task model.TaskWithoutAnswer) error {
+	_, err := g.client.CreateNewTask(context.Background(), &proto.TaskWithoutAnswer{
 		Id:     int64(task.Id),
 		Count:  int64(task.Count),
 		Height: task.Heights,
 		Price:  int64(task.Price),
-		Answer: int64(task.Answer),
 	})
 	if err != nil {
 		return fmt.Errorf("can't create new task: %v", err)

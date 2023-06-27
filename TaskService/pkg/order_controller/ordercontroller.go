@@ -36,7 +36,43 @@ func (o orderController) GetAllTasksWithoutAnswers(page int) ([]model.TaskWithou
 }
 
 func (o orderController) CreateTask(task model.Task) error {
+	task.Answer = calculateAnswer(task.Heights)
 	return o.db.CreateTask(task)
+}
+
+func calculateAnswer(mas []int64) int {
+	max := 0;
+	cur := 0
+	sum := 0
+
+	if len(mas) < 2 {
+		return 0
+	}
+
+	for i := 0; i < len(mas); i++ {
+		if mas[i] > mas[max] {
+			max = i
+		}
+	}
+
+	for i := 0; i < max; i++ {
+		if mas[cur] < mas[i] {
+			cur = i 
+		} else {
+			sum += int(mas[cur] - mas[i])
+		}
+	}
+
+	cur = len(mas) - 1
+	for i := len(mas) - 1; i > max; i-- {
+		if mas[cur] <= mas[i] {
+			cur = i 
+		} else {
+			sum += int(mas[cur] - mas[i])
+		}
+	}
+
+	return sum
 }
 
 func (o orderController) CheckAndGetTask(username string, id int) (model.Task, error) {

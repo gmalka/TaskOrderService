@@ -159,13 +159,12 @@ func (g grpcServ) BuyTaskAnswer(ctx context.Context, req *proto.UsernameAndId) (
 	return &proto.None{}, err
 }
 
-func (g grpcServ) CreateNewTask(ctx context.Context, req *proto.Task) (*proto.None, error) {
+func (g grpcServ) CreateNewTask(ctx context.Context, req *proto.TaskWithoutAnswer) (*proto.None, error) {
 	err := g.bd.CreateTask(model.Task{
 		Id:      int(req.Id),
 		Count:   int(req.Count),
 		Heights: req.Height,
 		Price:   int(req.Price),
-		Answer:  int(req.Answer),
 	})
 
 	if err != nil {

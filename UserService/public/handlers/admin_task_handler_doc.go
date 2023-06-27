@@ -18,7 +18,7 @@ type CreateTaskRequest struct {
 	// in:path
 	Username string `json:"username"`
 	// in:body
-	Body model.Task `json:"task"`
+	Body model.TaskWithoutAnswer `json:"task"`
 }
 
 // swagger:response CreateTaskResponse
