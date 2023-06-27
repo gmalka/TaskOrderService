@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"context"
@@ -8,12 +8,10 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"taskServer/database/postgres"
-	postgresservice "taskServer/database/postgres/postgres_service"
-	ordercontroller "taskServer/order_controller"
-	mygrpc "taskServer/transport/grpc"
-	"taskServer/transport/rest"
 	"time"
+	"userService/pkg/database/postgres"
+	postgresservice "userService/pkg/database/postgres/postgres_service"
+	"userService/transport/rest"
 
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -21,7 +19,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func main() {
+func Run() {
 	godotenv.Load()
 
 	config := postgres.DbConfig{

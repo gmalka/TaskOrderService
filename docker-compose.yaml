@@ -3,6 +3,7 @@ version: "3.9"
 services:
   task_app:
     build: ./TaskService/
+    container_name: task_app
     ports:
       - 127.0.0.1:8081:8081
       - 127.0.0.1:8082:8080
@@ -13,6 +14,7 @@ services:
       - mynetwork
   user_app:
     build: ./UserService/
+    container_name: user_app
     ports:
       - 127.0.0.1:8080:8080
     depends_on:
@@ -21,6 +23,7 @@ services:
       - mynetwork
   db:
     image: postgres
+    container_name: postgres_app
     ports:
       - 127.0.0.1:5432:5432
     environment:
