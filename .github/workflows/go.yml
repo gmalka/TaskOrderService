@@ -10,22 +10,38 @@ on:
     branches: [ "master" ]
 
 jobs:
-
-  build:
+  test-UserService:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
 
-    - name: Build TaskService
-      run: cd TaskService && go build -v ./...
-      
-    - name: Build UserService
-      run: cd UserService && go build -v ./...
+      - name: Install dependencies for service1
+        run: cd UserService && go get -v -t ./...
 
-    - name: Test
-      run: go test -v ./...
+      - name: Run tests for service1
+        run: cd UserService && ginkgo ./...
+
+  test-TaskService:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+
+      - name: Install dependencies for service2
+        run: cd TaskService && go get -v -t ./...
+
+      - name: Run tests for service2
+        run: cd TaskService && ginkgo ./...
