@@ -8,4 +8,5 @@ WORKDIR /pr1
 COPY --from=builder /pr1/.env .
 COPY --from=builder /pr1/app .
 COPY --from=builder /pr1/public/swagger.json /pr1/public/
+RUN go install github.com/onsi/ginkgo/v2/ginkgo
 ENTRYPOINT [ "/pr1/app" ]
