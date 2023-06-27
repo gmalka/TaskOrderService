@@ -2,7 +2,6 @@ package rest
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -35,7 +34,7 @@ func (h Handler) getUsersTasksWithoutAnswer(w http.ResponseWriter, r *http.Reque
 	tasks, err := h.grpcCli.GetAllTasksWithoutAnswers(pageNum)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't get all tasks", http.StatusBadRequest)
 		return
 	}
 
@@ -68,7 +67,7 @@ func (h Handler) getAllTasks(w http.ResponseWriter, r *http.Request) {
 	tasks, err := h.grpcCli.GetAllTasks()
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't get all tasks", http.StatusBadRequest)
 		return
 	}
 
@@ -117,7 +116,7 @@ func (h Handler) updateUserBalance(w http.ResponseWriter, r *http.Request) {
 	err = h.controller.UpdateBalance(change.Username, change.Money)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't update balance", http.StatusBadRequest)
 		return
 	}
 
@@ -166,7 +165,7 @@ func (h Handler) updateTask(w http.ResponseWriter, r *http.Request) {
 	err = h.grpcCli.UpdatePriceOfTask(update.TaskId, update.NewBalance)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't update price of task", http.StatusBadRequest)
 		return
 	}
 
@@ -208,7 +207,7 @@ func (h Handler) deleteTask(w http.ResponseWriter, r *http.Request) {
 	err = h.grpcCli.DeleteTask(id)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't delete task", http.StatusBadRequest)
 		return
 	}
 
@@ -257,7 +256,7 @@ func (h Handler) createTask(w http.ResponseWriter, r *http.Request) {
 	err = h.grpcCli.CreateNewTask(task)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't create new task", http.StatusBadRequest)
 		return
 	}
 

@@ -3,7 +3,6 @@ package rest
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -34,7 +33,7 @@ func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
 	user, err := h.controller.GetUser(userAuth.Username)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't get user", http.StatusBadRequest)
 		return
 	}
 
@@ -52,7 +51,7 @@ func (h Handler) loginIn(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't generate token", http.StatusBadRequest)
 		return
 	}
 
@@ -117,6 +116,12 @@ func (h Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(user.Username) < 4 || len(user.Password) < 4 {
+		h.logger.Err.Printf("register with short data: %v\n", err.Error())
+		http.Error(w, "message: too short data", http.StatusBadRequest)
+		return
+	}
+
 	user.Password, err = h.passManager.HashPassword(user.Password)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
@@ -129,7 +134,7 @@ func (h Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 	err = h.controller.CreateUser(user)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't create user", http.StatusBadRequest)
 		return
 	}
 

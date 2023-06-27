@@ -17,7 +17,7 @@ func (h Handler) getUsersNicknames(w http.ResponseWriter, r *http.Request) {
 	s, err := h.controller.GetAllUsernames()
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't get all usernames", http.StatusBadRequest)
 		return
 	}
 
@@ -49,21 +49,21 @@ func (h Handler) tryToOrderTask(w http.ResponseWriter, r *http.Request) {
 	order, err := h.grpcCli.CheckAndGetTask(username, id)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't get task", http.StatusBadRequest)
 		return
 	}
 
 	err = h.controller.TryToBuyTask(username, order.Price)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't buy task", http.StatusBadRequest)
 		return
 	}
 
 	err = h.grpcCli.BuyTaskAnswer(username, order.Id)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't buy task answer", http.StatusBadRequest)
 		return
 	}
 
@@ -98,7 +98,7 @@ func (h Handler) getUsersTasks(w http.ResponseWriter, r *http.Request) {
 	orders, err := h.grpcCli.GetOrdersForUser(username, pageNum)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't get orders for user", http.StatusBadRequest)
 		return
 	}
 
@@ -134,14 +134,14 @@ func (h Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 	err := h.grpcCli.DeleteOrdersForUser(username)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't delete orders for user", http.StatusBadRequest)
 		return
 	}
 
 	err = h.controller.DeleteUser(username)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't delete user", http.StatusBadRequest)
 		return
 	}
 
@@ -190,7 +190,7 @@ func (h Handler) updateUser(w http.ResponseWriter, r *http.Request) {
 	err = h.controller.UpdateUser(user)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can;t update user", http.StatusBadRequest)
 		return
 	}
 
@@ -212,7 +212,7 @@ func (h Handler) getInfo(w http.ResponseWriter, r *http.Request) {
 	user, err := h.controller.GetUser(username)
 	if err != nil {
 		h.logger.Err.Println(err.Error())
-		http.Error(w, fmt.Sprintf("message: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, "message: can't get user", http.StatusBadRequest)
 		return
 	}
 
