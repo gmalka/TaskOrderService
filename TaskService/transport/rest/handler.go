@@ -70,10 +70,12 @@ func NewHandler(controller ordercontroller.Controller, logger Log) Handler {
 	return Handler{controller: controller, logger: logger}
 }
 
-func (h Handler) InitRouter() http.Handler {
+func (h Handler) InitRouter(logging bool) http.Handler {
 	r := chi.NewRouter()
 
-	r.Use(middleware.Logger)
+	if logging {
+		r.Use(middleware.Logger)
+	}
 
 	r.Get("/", h.getTasks)
 	r.Get("/{taskId}", h.getTask)
@@ -81,6 +83,11 @@ func (h Handler) InitRouter() http.Handler {
 	r.Patch("/", h.changeTaskPrice)
 	r.Delete("/{taskId}", h.deleteTask)
 	r.Delete("/users/{username}", h.deleteTaskForUser)
+
+	r.Get("/swagger", h.swaggerUI)
+	r.Get("/public/*", func(w http.ResponseWriter, r *http.Request) {
+		http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))).ServeHTTP(w, r)
+	})
 
 	return r
 }

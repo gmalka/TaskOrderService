@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"time"
 
 	. "github.com/gcapizzi/moka"
@@ -31,8 +30,8 @@ var _ = Describe("Handler", func() {
 	)
 
 	BeforeEach(func() {
-		loggerErr := log.New(os.Stderr, "ERROR:\t ", log.Lshortfile|log.Ltime)
-		loggerInfo := log.New(os.Stdout, "INFO:\t ", log.Lshortfile|log.Ltime)
+		loggerErr := log.New(ioutil.Discard, "ERROR:\t ", log.Lshortfile|log.Ltime)
+		loggerInfo := log.New(ioutil.Discard, "INFO:\t ", log.Lshortfile|log.Ltime)
 		logger := rest.Log{loggerErr, loggerInfo}
 
 		db = NewUserControllerDouble()
@@ -63,7 +62,7 @@ var _ = Describe("Handler", func() {
 					in := `{"username":"root","password":"1234","info":{"firstname":"m","lastname":"m","surname":"mm","group":"t-15","balance":0}}`
 
 					req, err := http.NewRequest("POST", "/auth/register", bytes.NewReader([]byte(in)))
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(err).Should(Succeed())
 					Expect(res.Result().StatusCode).To(Equal(200))
@@ -77,7 +76,7 @@ var _ = Describe("Handler", func() {
 					in := `{"username":"root","password":"1234","info":{"firstname":"m","lastname":"m","surname":"mm","group":"t-15","balance":0}}`
 
 					req, err := http.NewRequest("POST", "/auth/register", bytes.NewReader([]byte(in)))
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(err).Should(Succeed())
 					Expect(res.Result().StatusCode).To(Equal(500))
@@ -100,7 +99,7 @@ var _ = Describe("Handler", func() {
 					in := `{"username":"root","password":"1234","info":{"firstname":"m","lastname":"m","surname":"mm","group":"t-15","balance":0}}`
 
 					req, err := http.NewRequest("POST", "/auth/register", bytes.NewReader([]byte(in)))
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(err).Should(Succeed())
 					Expect(res.Result().StatusCode).To(Equal(400))
@@ -131,7 +130,7 @@ var _ = Describe("Handler", func() {
 					in := `{"username":"root","password":"1234"}`
 
 					req, _ := http.NewRequest("POST", "/auth/login", bytes.NewReader([]byte(in)))
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(200))
 					Expect(ioutil.ReadAll(res.Body)).To(Equal([]byte(`{"Access":"4321","Refresh":"654321"}`)))
@@ -147,7 +146,7 @@ var _ = Describe("Handler", func() {
 					in := `{"username":"root","password":"1234"}`
 
 					req, _ := http.NewRequest("POST", "/auth/login", bytes.NewReader([]byte(in)))
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(400))
 				})
@@ -163,7 +162,7 @@ var _ = Describe("Handler", func() {
 					in := `{"username":"root","password":"1234"}`
 
 					req, _ := http.NewRequest("POST", "/auth/login", bytes.NewReader([]byte(in)))
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(401))
 				})
@@ -194,7 +193,7 @@ var _ = Describe("Handler", func() {
 
 					req, _ := http.NewRequest("POST", "/auth/refresh", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(200))
 					Expect(ioutil.ReadAll(res.Body)).To(Equal([]byte(`{"Access":"4321","Refresh":"654321"}`)))
@@ -217,7 +216,7 @@ var _ = Describe("Handler", func() {
 
 					req, _ := http.NewRequest("POST", "/auth/refresh", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(500))
 				})
@@ -232,7 +231,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("POST", "/auth/refresh", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(400))
 				})
@@ -248,7 +247,7 @@ var _ = Describe("Handler", func() {
 
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("GET", "/tasks/1", nil)
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(200))
 					Expect(ioutil.ReadAll(res.Body)).
@@ -261,7 +260,7 @@ var _ = Describe("Handler", func() {
 
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("GET", "/tasks/1", nil)
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(400))
 				})
@@ -276,7 +275,7 @@ var _ = Describe("Handler", func() {
 
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("GET", "/users", nil)
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(200))
 					Expect(ioutil.ReadAll(res.Body)).
@@ -288,7 +287,7 @@ var _ = Describe("Handler", func() {
 
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("GET", "/users", nil)
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(400))
 				})
@@ -318,7 +317,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("GET", "/users/root", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(200))
 					Expect(ioutil.ReadAll(res.Body)).
@@ -345,7 +344,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("GET", "/users/root", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(400))
 				})
@@ -360,7 +359,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("GET", "/users/root", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(400))
 				})
@@ -389,7 +388,7 @@ var _ = Describe("Handler", func() {
 					in := `{"username":"root","password":"1234"}`
 					req, _ := http.NewRequest("PUT", "/users/root", bytes.NewReader([]byte(in)))
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(200))
 				})
@@ -405,7 +404,7 @@ var _ = Describe("Handler", func() {
 					in := `{"username":"root","password":"1234"}`
 					req, _ := http.NewRequest("PUT", "/users/root", bytes.NewReader([]byte(in)))
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(403))
 				})
@@ -431,7 +430,7 @@ var _ = Describe("Handler", func() {
 					in := `{"username":"root","password":"1234"}`
 					req, _ := http.NewRequest("PUT", "/users/root", bytes.NewReader([]byte(in)))
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(400))
 				})
@@ -451,7 +450,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("DELETE", "/users/root", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(200))
 				})
@@ -466,7 +465,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("DELETE", "/users/root", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(403))
 				})
@@ -483,7 +482,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("DELETE", "/users/root", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(400))
 				})
@@ -499,7 +498,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("DELETE", "/users/root", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(400))
 				})
@@ -525,7 +524,7 @@ var _ = Describe("Handler", func() {
 					req, _ := http.NewRequest("POST", "/users/root", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
 					req.Header.Add("taskId", "1")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(200))
 					Expect(io.ReadAll(res.Body)).To(Equal([]byte(`{"answer":2}`)))
@@ -545,7 +544,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("PATCH", "/users/root", bytes.NewReader([]byte(`{"username":"root","money":2000}`)))
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(200))
 				})
@@ -561,7 +560,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("PATCH", "/users/root", bytes.NewReader([]byte(`{"username":"root","money":2000}`)))
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(403))
 				})
@@ -584,7 +583,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("GET", "/users/root/orders/purchased/1", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(200))
 					Expect(io.ReadAll(res.Body)).To(Equal([]byte("page №1:\n[{\"id\":1,\"count\":0,\"heights\":null,\"price\":0,\"answer\":0},{\"id\":2,\"count\":0,\"heights\":null,\"price\":0,\"answer\":0}]")))
@@ -606,7 +605,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("GET", "/users/root/orders", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(200))
 					Expect(io.ReadAll(res.Body)).To(Equal([]byte(`[{"id":1,"count":0,"heights":null,"price":0,"answer":0},{"id":2,"count":0,"heights":null,"price":0,"answer":0}]`)))
@@ -626,7 +625,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("PUT", "/users/root/orders", bytes.NewReader([]byte(`{"taskId":1,"balance":1500}`)))
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(200))
 				})
@@ -640,12 +639,12 @@ var _ = Describe("Handler", func() {
 						Firstname: "m",
 						Lastname:  "m",
 					}, nil))
-					AllowDouble(mygrpc).To(ReceiveCallTo("CreateNewTask").With(model.Task{Id: 1, Count: 2, Heights: []int64{1,2}, Price: 400, Answer: 2}).AndReturn(nil))
+					AllowDouble(mygrpc).To(ReceiveCallTo("CreateNewTask").With(model.Task{Id: 1, Count: 2, Heights: []int64{1, 2}, Price: 400, Answer: 2}).AndReturn(nil))
 
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("POST", "/users/root/orders", bytes.NewReader([]byte(`{"id":1,"count":2,"heights":[1,2],"price":400,"answer":2}`)))
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 
 					Expect(res.Result().StatusCode).To(Equal(200))
 				})
@@ -664,7 +663,7 @@ var _ = Describe("Handler", func() {
 					res := httptest.NewRecorder()
 					req, _ := http.NewRequest("DELETE", "/users/root/orders/1", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
-					h.InitRouter().ServeHTTP(res, req)
+					h.InitRouter(false).ServeHTTP(res, req)
 				})
 			})
 		})

@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
-	"os"
 	"taskServer/build/proto"
 	"taskServer/model"
 	mygrpc "taskServer/transport/grpc"
@@ -31,8 +31,8 @@ var _ = Describe("GrpcServ", func() {
 	var controller ControllerDouble
 
 	BeforeEach(func() {
-		loggerErr := log.New(os.Stderr, "ERROR:\t ", log.Lshortfile|log.Ltime)
-		loggerInfo := log.New(os.Stdout, "INFO:\t ", log.Lshortfile|log.Ltime)
+		loggerErr := log.New(ioutil.Discard, "ERROR:\t ", log.Lshortfile|log.Ltime)
+		loggerInfo := log.New(ioutil.Discard, "INFO:\t ", log.Lshortfile|log.Ltime)
 		logger := mygrpc.Log{loggerErr, loggerInfo}
 
 		lis = bufconn.Listen(1024 * 1024)
@@ -165,7 +165,7 @@ var _ = Describe("GrpcServ", func() {
 				AllowDouble(controller).To(ReceiveCallTo("GetAllTasksOfUser").With("root", 1).AndReturn(wanted, nil))
 				req, err := client.GetOrdersForUser(context.Background(), &proto.UserOrders{
 					Username: "root",
-					Page: 1,
+					Page:     1,
 				})
 				Expect(err).Should(Succeed())
 
@@ -183,7 +183,7 @@ var _ = Describe("GrpcServ", func() {
 						Count:   int(resp.Count),
 						Heights: resp.Height,
 						Price:   int(resp.Price),
-						Answer: int(resp.Answer),
+						Answer:  int(resp.Answer),
 					})
 				}
 
@@ -194,7 +194,7 @@ var _ = Describe("GrpcServ", func() {
 				AllowDouble(controller).To(ReceiveCallTo("GetAllTasksOfUser").With("root", 1).AndReturn(nil, errors.New("some error")))
 				req, err := client.GetOrdersForUser(context.Background(), &proto.UserOrders{
 					Username: "root",
-					Page: 1,
+					Page:     1,
 				})
 				Expect(err).Should(Succeed())
 
@@ -217,7 +217,7 @@ var _ = Describe("GrpcServ", func() {
 				AllowDouble(controller).To(ReceiveCallTo("CheckAndGetTask").With("root", 1).AndReturn(in, nil))
 				req, err := client.CheckAndGetTask(context.Background(), &proto.UsernameAndId{
 					Username: "root",
-					Id: 1,
+					Id:       1,
 				})
 				Expect(err).Should(Succeed())
 
@@ -229,7 +229,7 @@ var _ = Describe("GrpcServ", func() {
 				AllowDouble(controller).To(ReceiveCallTo("CheckAndGetTask").With("root", 1).AndReturn(nil, errors.New("some error")))
 				_, err := client.CheckAndGetTask(context.Background(), &proto.UsernameAndId{
 					Username: "root",
-					Id: 1,
+					Id:       1,
 				})
 				Expect(err).ShouldNot(Succeed())
 			})
@@ -240,7 +240,7 @@ var _ = Describe("GrpcServ", func() {
 				AllowDouble(controller).To(ReceiveCallTo("BuyTaskAnswer").With(model.UsersPurchase{Username: "root", OrderId: 1}).AndReturn(nil))
 				_, err := client.BuyTaskAnswer(context.Background(), &proto.UsernameAndId{
 					Username: "root",
-					Id: 1,
+					Id:       1,
 				})
 				Expect(err).Should(Succeed())
 			})
@@ -249,7 +249,7 @@ var _ = Describe("GrpcServ", func() {
 				AllowDouble(controller).To(ReceiveCallTo("BuyTaskAnswer").With(model.UsersPurchase{Username: "root", OrderId: 1}).AndReturn(errors.New("some error")))
 				_, err := client.BuyTaskAnswer(context.Background(), &proto.UsernameAndId{
 					Username: "root",
-					Id: 1,
+					Id:       1,
 				})
 				Expect(err).ShouldNot(Succeed())
 			})
@@ -258,18 +258,18 @@ var _ = Describe("GrpcServ", func() {
 		Context("testing CreateNewTask", func() {
 			It("regular", func() {
 				in := model.Task{
-					Id: 0,
-					Count: 4,
-					Heights: []int64{1,2,3,4},
-					Price: 500,
-					Answer: 2,
+					Id:      0,
+					Count:   4,
+					Heights: []int64{1, 2, 3, 4},
+					Price:   500,
+					Answer:  2,
 				}
 				AllowDouble(controller).To(ReceiveCallTo("CreateTask").With(in).AndReturn(nil))
 				_, err := client.CreateNewTask(context.Background(), &proto.Task{
-					Id: int64(in.Id),
-					Count: int64(in.Count),
+					Id:     int64(in.Id),
+					Count:  int64(in.Count),
 					Height: in.Heights,
-					Price: int64(in.Price),
+					Price:  int64(in.Price),
 					Answer: int64(in.Answer),
 				})
 
@@ -277,18 +277,18 @@ var _ = Describe("GrpcServ", func() {
 			})
 			It("error", func() {
 				in := model.Task{
-					Id: 0,
-					Count: 4,
-					Heights: []int64{1,2,3,4},
-					Price: 500,
-					Answer: 2,
+					Id:      0,
+					Count:   4,
+					Heights: []int64{1, 2, 3, 4},
+					Price:   500,
+					Answer:  2,
 				}
 				AllowDouble(controller).To(ReceiveCallTo("CreateTask").With(in).AndReturn(errors.New("some error")))
 				_, err := client.CreateNewTask(context.Background(), &proto.Task{
-					Id: int64(in.Id),
-					Count: int64(in.Count),
+					Id:     int64(in.Id),
+					Count:  int64(in.Count),
 					Height: in.Heights,
-					Price: int64(in.Price),
+					Price:  int64(in.Price),
 					Answer: int64(in.Answer),
 				})
 
@@ -300,7 +300,7 @@ var _ = Describe("GrpcServ", func() {
 			It("regular", func() {
 				AllowDouble(controller).To(ReceiveCallTo("ChangeTaskPrice").With(1, 500).AndReturn(nil))
 				_, err := client.UpdatePriceOfTask(context.Background(), &proto.TaskForUpdate{
-					Id: 1,
+					Id:    1,
 					Price: 500,
 				})
 
@@ -310,7 +310,7 @@ var _ = Describe("GrpcServ", func() {
 			It("error", func() {
 				AllowDouble(controller).To(ReceiveCallTo("ChangeTaskPrice").With(1, 500).AndReturn(errors.New("some error")))
 				_, err := client.UpdatePriceOfTask(context.Background(), &proto.TaskForUpdate{
-					Id: 1,
+					Id:    1,
 					Price: 500,
 				})
 

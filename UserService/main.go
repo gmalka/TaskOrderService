@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"time"
 	"userService/internal/auth/passwordManager"
+	"userService/internal/auth/tokenManager"
 	"userService/internal/database/postgres"
 	postgresservice "userService/internal/database/postgres/postgres_service"
 	mygrpc "userService/internal/transport/grpc"
@@ -24,7 +25,7 @@ import (
 func main() {
 	godotenv.Load()
 
-	tokenManager := auth.NewAuthService(os.Getenv("ACCESS_SECRET"), os.Getenv("REFRESH_SECRET"))
+	tokenManager := tokenManager.NewAuthService(os.Getenv("ACCESS_SECRET"), os.Getenv("REFRESH_SECRET"))
 
 	config := postgres.DbConfig{
 		Host:     os.Getenv("DB_HOST"),
@@ -60,7 +61,7 @@ func main() {
 	path := fmt.Sprintf("%s:%s", os.Getenv("GRPC_URL"), os.Getenv("GRPC_PORT"))
 	conn, err := grpc.Dial(path, opts...)
 	if err != nil {
-		loggerErr.Println("can't connect by grpc to path %s: %v", path, err)
+		loggerErr.Printf("can't connect by grpc to path %s: %v", path, err)
 		return
 	}
 
@@ -72,7 +73,7 @@ func main() {
 
 	handler := rest.NewHandler(userController, tokenManager, grpcController, passwordManager.NewPasswordManager(), log)
 
-	RunServer(fmt.Sprintf("%s:%s", os.Getenv("URL"), os.Getenv("PORT")), handler.InitRouter(), log)
+	RunServer(fmt.Sprintf("%s:%s", os.Getenv("URL"), os.Getenv("PORT")), handler.InitRouter(false), log)
 }
 
 func RunServer(addr string, h http.Handler, log rest.Log) {

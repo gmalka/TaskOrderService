@@ -72,10 +72,12 @@ func NewHandler(controller usercontroller.Controller, tokenManager tokenManager.
 	return Handler{controller: controller, tokenManager: tokenManager, grpcCli: grpcCli, passManager: passManager, logger: logger}
 }
 
-func (h Handler) InitRouter() http.Handler {
+func (h Handler) InitRouter(logging bool) http.Handler {
 	r := chi.NewRouter()
 
-	r.Use(middleware.Logger)
+	if logging {
+		r.Use(middleware.Logger)
+	}
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/register", h.registerUser)
@@ -111,7 +113,7 @@ func (h Handler) InitRouter() http.Handler {
 		})
 	})
 
-	r.Get("/docs", h.swaggerUI)
+	r.Get("/swagger", h.swaggerUI)
 	r.Get("/public/*", func(w http.ResponseWriter, r *http.Request) {
 		http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))).ServeHTTP(w, r)
 	})

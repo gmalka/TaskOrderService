@@ -218,6 +218,19 @@ func (h Handler) updateTask(w http.ResponseWriter, r *http.Request) {
 func (h Handler) deleteTask(w http.ResponseWriter, r *http.Request) {
 	taskId := chi.URLParam(r, "taskId")
 
+	u, ok := r.Context().Value(UserRequest{}).(tokenManager.UserClaims)
+	if !ok {
+		h.logger.Err.Println("cant get data from context")
+		http.Error(w, "message: some server error", http.StatusInternalServerError)
+		return
+	}
+
+	if u.Role != usercontroller.ADMIN_ROLE {
+		h.logger.Err.Printf("permission denied for user %s\n", u.Username)
+		http.Error(w, "message: permission denied", http.StatusForbidden)
+		return
+	}
+
 	id, err := strconv.Atoi(taskId)
 	if err != nil {
 		h.logger.Err.Printf("can't parse tasks id %s: %v", taskId, err)

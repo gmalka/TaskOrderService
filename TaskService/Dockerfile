@@ -7,5 +7,5 @@ FROM alpine:latest
 WORKDIR /pr1
 COPY --from=builder /pr1/.env .
 COPY --from=builder /pr1/app .
-# COPY --from=builder /pr1/public/swagger.json /pr1/public/
+COPY --from=builder /pr1/public/swagger.json /pr1/public/
 ENTRYPOINT [ "/pr1/app" ]

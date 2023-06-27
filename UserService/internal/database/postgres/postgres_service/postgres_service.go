@@ -2,7 +2,6 @@ package postgresservice
 
 import (
 	"fmt"
-	"log"
 	"userService/internal/database"
 	"userService/internal/model"
 
@@ -18,15 +17,18 @@ func NewPostgresService(db *sqlx.DB) database.DatabaseService {
 }
 
 func (p postgresService) UpdateBalance(username string, change int) error {
-	_, err := p.db.Exec("UPDATE users SET balance=balance+$1 WHERE username=$2", change, username)
+	res, err := p.db.Exec("UPDATE users SET balance=balance+$1 WHERE username=$2", change, username)
 	if err != nil {
 		return fmt.Errorf("can't update users balance %s: %v", username, err)
+	}
+	if i, _ := res.RowsAffected(); i < 1 {
+		return fmt.Errorf("can't find usere %s", username)
 	}
 
 	return nil
 }
 
-func (p postgresService) TryToBuyTask(username string, price int) (error) {
+func (p postgresService) TryToBuyTask(username string, price int) error {
 	var balance int
 
 	tx, err := p.db.Beginx()
@@ -40,15 +42,15 @@ func (p postgresService) TryToBuyTask(username string, price int) (error) {
 		return fmt.Errorf("can't get balance of user %s: %v", username, err)
 	}
 
-	if balance - price < -1000 {
+	if balance-price < -1000 {
 		return fmt.Errorf("not enought money for operation for user %s: %v", username, err)
 	}
 
-	_, err = tx.Exec("UPDATE users SET balance=$1 WHERE username=$2", balance - price, username)
+	_, err = tx.Exec("UPDATE users SET balance=$1 WHERE username=$2", balance-price, username)
 	if err != nil {
 		return fmt.Errorf("can't update balance of user %s: %v", username, err)
 	}
-	
+
 	err = tx.Commit()
 	if err != nil {
 		return fmt.Errorf("can't commit changes for user %s: %v", username, err)
@@ -73,7 +75,6 @@ func (p postgresService) GetByUsername(username string) (model.UserWithRole, err
 	err := p.db.QueryRow("SELECT password,firstname,lastname,surname,user_group,balance,role FROM users WHERE username=$1", username).Scan(&user.User.Password, &user.User.Info.Firstname,
 		&user.User.Info.Lastname, &user.User.Info.Surname, &user.User.Info.Group, &user.User.Info.Balance, &user.Role)
 	if err != nil {
-		log.Println(err)
 		return user, fmt.Errorf("can't get info about user %s: %v", username, err)
 	}
 

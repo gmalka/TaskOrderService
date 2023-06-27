@@ -84,7 +84,7 @@ func (p postgresService) CheckAndGetTask(username string, id int) (model.Task, e
 	err := p.db.QueryRow("SELECT id,quantity,heights,price,answer FROM tasks LEFT JOIN userOrders ON tasks.id=userOrders.orderId WHERE id=$1 AND NOT EXISTS (SELECT 1 FROM userOrders WHERE orderId = $1 AND username = $2)",
 		id, username).Scan(&task.Id, &task.Count, (*pq.Int64Array)(&task.Heights), &task.Price, &task.Answer)
 	if err == sql.ErrNoRows {
-		return task, fmt.Errorf("the job has already been purchased by this user\n")
+		return task, fmt.Errorf("can't found task\n")
 	}
 	if err != nil {
 		return task, fmt.Errorf("can't get for task %d: %s", id, err)
@@ -113,9 +113,12 @@ func (p postgresService) DeleteTask(id int) error {
 	}
 	defer tx.Rollback()
 
-	_, err = tx.Exec("DELETE FROM tasks WHERE id=$1", id)
+	res, err := tx.Exec("DELETE FROM tasks WHERE id=$1", id)
 	if err != nil {
 		return fmt.Errorf("can't delete task %d: %s", id, err)
+	}
+	if i, _ := res.RowsAffected(); i < 1 {
+		return fmt.Errorf("can't found task %d", id)
 	}
 
 	_, err = tx.Exec("DELETE FROM userOrders WHERE orderId=$1", id)

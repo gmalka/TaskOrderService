@@ -57,7 +57,7 @@ func main() {
 	h := rest.NewHandler(ordercontroller, log)
 
 	RunServer(fmt.Sprintf("%s:%s", os.Getenv("REST_URL"), os.Getenv("REST_PORT")),
-		list, h.InitRouter(), grpcServer, log)
+		list, h.InitRouter(false), grpcServer, log)
 }
 
 func RunServer(addr string, list net.Listener, h http.Handler, grpsServ *grpc.Server, log rest.Log) {

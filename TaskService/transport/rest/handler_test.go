@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"taskServer/model"
 	"taskServer/transport/rest"
 
@@ -21,8 +20,8 @@ var (
 )
 
 var _ = BeforeSuite(func() {
-	loggerErr := log.New(os.Stderr, "ERROR:\t ", log.Lshortfile|log.Ltime)
-	loggerInfo := log.New(os.Stdout, "INFO:\t ", log.Lshortfile|log.Ltime)
+	loggerErr := log.New(ioutil.Discard, "ERROR:\t ", log.Lshortfile|log.Ltime)
+	loggerInfo := log.New(ioutil.Discard, "INFO:\t ", log.Lshortfile|log.Ltime)
 	logger = rest.Log{loggerErr, loggerInfo}
 })
 
@@ -47,7 +46,7 @@ var _ = Describe("Handler", func() {
 
 				req, err := http.NewRequest("GET", "/", nil)
 				res := httptest.NewRecorder()
-				h.InitRouter().ServeHTTP(res, req)
+				h.InitRouter(false).ServeHTTP(res, req)
 
 				js := `[{"id":1,"quantity":2,"heights":[1,2],"price":500,"answer":2}]`
 
@@ -64,7 +63,7 @@ var _ = Describe("Handler", func() {
 
 				req, err := http.NewRequest("GET", "/", nil)
 				res := httptest.NewRecorder()
-				h.InitRouter().ServeHTTP(res, req)
+				h.InitRouter(false).ServeHTTP(res, req)
 
 				Expect(err).Should(Succeed())
 				Expect(res.Result().StatusCode).To(Equal(400))
@@ -81,7 +80,7 @@ var _ = Describe("Handler", func() {
 				res := httptest.NewRecorder()
 				req, err := http.NewRequest("GET", "/2", nil)
 
-				h.InitRouter().ServeHTTP(res, req)
+				h.InitRouter(false).ServeHTTP(res, req)
 
 				js := `{"id":1,"quantity":2,"heights":[1,2],"price":500,"answer":2}`
 
@@ -91,13 +90,12 @@ var _ = Describe("Handler", func() {
 				Expect(ioutil.ReadAll(res.Body)).To(Equal([]byte(js)))
 			})
 
-
 			It("error", func() {
 				AllowDouble(controller).To(ReceiveCallTo("CheckAndGetTask").With("", 2).AndReturn(model.Task{}, errors.New("some error")))
 
 				req, err := http.NewRequest("GET", "/2", nil)
 				res := httptest.NewRecorder()
-				h.InitRouter().ServeHTTP(res, req)
+				h.InitRouter(false).ServeHTTP(res, req)
 
 				Expect(err).Should(Succeed())
 				Expect(res.Result().StatusCode).To(Equal(400))
@@ -115,7 +113,7 @@ var _ = Describe("Handler", func() {
 				js := `{"id":0,"quantity":2,"heights":[1,2],"price":500,"answer":2}`
 				req, err := http.NewRequest("POST", "/", bytes.NewReader([]byte(js)))
 
-				h.InitRouter().ServeHTTP(res, req)
+				h.InitRouter(false).ServeHTTP(res, req)
 
 				Expect(err).Should(Succeed())
 				Expect(res.Result().StatusCode).To(Equal(200))
@@ -130,7 +128,7 @@ var _ = Describe("Handler", func() {
 				js := `{"id":0,"quantity":2,"heights":[1,2],"price":500,"answer":2}`
 				req, err := http.NewRequest("POST", "/", bytes.NewReader([]byte(js)))
 
-				h.InitRouter().ServeHTTP(res, req)
+				h.InitRouter(false).ServeHTTP(res, req)
 
 				Expect(err).Should(Succeed())
 				Expect(res.Result().StatusCode).To(Equal(400))
@@ -148,7 +146,7 @@ var _ = Describe("Handler", func() {
 				js := `{"orderId":1,"price":2}`
 				req, err := http.NewRequest("PATCH", "/", bytes.NewReader([]byte(js)))
 
-				h.InitRouter().ServeHTTP(res, req)
+				h.InitRouter(false).ServeHTTP(res, req)
 
 				Expect(err).Should(Succeed())
 				Expect(res.Result().StatusCode).To(Equal(200))
@@ -163,7 +161,7 @@ var _ = Describe("Handler", func() {
 				js := `{"orderId":1,"price":2}`
 				req, err := http.NewRequest("PATCH", "/", bytes.NewReader([]byte(js)))
 
-				h.InitRouter().ServeHTTP(res, req)
+				h.InitRouter(false).ServeHTTP(res, req)
 
 				Expect(err).Should(Succeed())
 				Expect(res.Result().StatusCode).To(Equal(400))
@@ -180,7 +178,7 @@ var _ = Describe("Handler", func() {
 				res := httptest.NewRecorder()
 				req, err := http.NewRequest("DELETE", "/1", nil)
 
-				h.InitRouter().ServeHTTP(res, req)
+				h.InitRouter(false).ServeHTTP(res, req)
 
 				Expect(err).Should(Succeed())
 				Expect(res.Result().StatusCode).To(Equal(200))
@@ -194,7 +192,7 @@ var _ = Describe("Handler", func() {
 				res := httptest.NewRecorder()
 				req, err := http.NewRequest("DELETE", "/1", nil)
 
-				h.InitRouter().ServeHTTP(res, req)
+				h.InitRouter(false).ServeHTTP(res, req)
 
 				Expect(err).Should(Succeed())
 				Expect(res.Result().StatusCode).To(Equal(400))
@@ -211,7 +209,7 @@ var _ = Describe("Handler", func() {
 				res := httptest.NewRecorder()
 				req, err := http.NewRequest("DELETE", "/users/root", nil)
 
-				h.InitRouter().ServeHTTP(res, req)
+				h.InitRouter(false).ServeHTTP(res, req)
 
 				Expect(err).Should(Succeed())
 				Expect(res.Result().StatusCode).To(Equal(200))
@@ -225,7 +223,7 @@ var _ = Describe("Handler", func() {
 				res := httptest.NewRecorder()
 				req, err := http.NewRequest("DELETE", "/users/root", nil)
 
-				h.InitRouter().ServeHTTP(res, req)
+				h.InitRouter(false).ServeHTTP(res, req)
 
 				Expect(err).Should(Succeed())
 				Expect(res.Result().StatusCode).To(Equal(400))
