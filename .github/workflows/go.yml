@@ -26,7 +26,7 @@ jobs:
         run: cd UserService && go get -v -t ./...
         
       - name: Install ginkgo for UserService
-        run: go install github.com/onsi/ginkgo/ginkgo
+        run: go install github.com/onsi/ginkgo/ginkgo@latest
 
       - name: Run tests for UserService
         run: cd UserService && ginkgo ./...
@@ -47,7 +47,7 @@ jobs:
         run: cd TaskService && go get -v -t ./...
         
       - name: Install ginkgo for UserService
-        run: go install github.com/onsi/ginkgo/ginkgo
+        run: go install github.com/onsi/ginkgo/ginkgo@latest
 
       - name: Run tests for TaskService
         run: cd TaskService && ginkgo ./...
