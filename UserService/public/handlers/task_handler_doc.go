@@ -11,7 +11,7 @@ import "userService/pkg/model"
 
 // swagger:parameters GetAllWithoutAnswersRequest
 type GetAllWithoutAnswersRequest struct {
-	// id заказываемого задания
+	// номер страницы
 	//
 	// in:path
 	Pahe string `json:"page"`
@@ -23,7 +23,7 @@ type GetAllWithoutAnswersResponse struct {
 	Tasks []model.TaskWithoutAnswer `json:"tasks"`
 }
 
-// swagger:route GET /users/{username}/orders/purchased/{page} orders GetUsersOrdersRequest
+// swagger:route GET /users/{username}/purchased/{page} orders GetUsersOrdersRequest
 // Получение заказов пользователя.
 // security:
 //   - Bearer: []

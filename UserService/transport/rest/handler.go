@@ -99,10 +99,11 @@ func (h Handler) InitRouter(logging bool) http.Handler {
 			r.Put("/", h.updateUser)
 			r.Delete("/", h.deleteUser)
 			r.Post("/", h.tryToOrderTask)
+			r.Get("/purchased/{page:^(|0|[1-9][0-9]*)$}", h.getUsersTasks)
 
 			r.Route("/admin", func(r chi.Router) {
 
-				r.Get("/purchased/{page:^(|0|[1-9][0-9]*)$}", h.getUsersTasks)
+
 				r.Patch("/", h.updateUserBalance)
 				r.Get("/", h.getAllTasks)
 				r.Put("/", h.updateTask)

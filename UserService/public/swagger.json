@@ -103,7 +103,7 @@
           {
             "type": "string",
             "x-go-name": "Pahe",
-            "description": "id заказываемого задания",
+            "description": "номер страницы",
             "name": "page",
             "in": "path",
             "required": true
@@ -465,7 +465,7 @@
         }
       }
     },
-    "/users/{username}/orders/purchased/{page}": {
+    "/users/{username}/purchased/{page}": {
       "get": {
         "security": [
           {

@@ -581,7 +581,7 @@ var _ = Describe("Handler", func() {
 					}, nil))
 
 					res := httptest.NewRecorder()
-					req, _ := http.NewRequest("GET", "/users/root/admin/purchased/1", nil)
+					req, _ := http.NewRequest("GET", "/users/root/purchased/1", nil)
 					req.Header.Add("Authorization", "Bearer 54321")
 					h.InitRouter(false).ServeHTTP(res, req)
 

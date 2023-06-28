@@ -113,17 +113,18 @@ func (p postgresService) DeleteTask(id int) error {
 	}
 	defer tx.Rollback()
 
+	_, err = tx.Exec("DELETE FROM userOrders WHERE orderId=$1", id)
+	if err != nil {
+		return fmt.Errorf("can't delete task %d: %s", id, err)
+	}
+
+
 	res, err := tx.Exec("DELETE FROM tasks WHERE id=$1", id)
 	if err != nil {
 		return fmt.Errorf("can't delete task %d: %s", id, err)
 	}
 	if i, _ := res.RowsAffected(); i < 1 {
 		return fmt.Errorf("can't found task %d", id)
-	}
-
-	_, err = tx.Exec("DELETE FROM userOrders WHERE orderId=$1", id)
-	if err != nil {
-		return fmt.Errorf("can't delete task %d: %s", id, err)
 	}
 
 	tx.Commit()
