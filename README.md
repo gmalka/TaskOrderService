@@ -69,7 +69,6 @@
   Put it into authorization field like this:
   
   <img width="654" alt="image" src="https://github.com/gmalka/TaskOrderService/assets/94842625/57785020-77f1-4c3b-bff4-72358fa74572"/>
-
   <br/>
   <br/>
 
