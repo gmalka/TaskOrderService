@@ -12,7 +12,7 @@
   ## 🛠 Testing and Running:
   1. To clone project use:
   ```shell
-  git@github.com:gmalka/TaskOrderService.git
+  git clone https://github.com/gmalka/TaskOrderService.git
   ```
   2. Modify .env files if necessary.
   3. Use makefile commands to start:
