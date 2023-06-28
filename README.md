@@ -21,7 +21,7 @@
       ```shell
       make
       ```
-     - To test app use:
+     - To run tests:
       ```shell
       make test
       ```
