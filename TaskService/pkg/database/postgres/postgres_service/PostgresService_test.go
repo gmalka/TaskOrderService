@@ -215,11 +215,11 @@ var _ = Describe("PostgresService", func() {
 				mockBehavior := func(id int) {
 					mock.ExpectBegin()
 
-					mock.ExpectExec(regexp.QuoteMeta("DELETE FROM tasks WHERE id=$1")).
-						WithArgs(id).
-						WillReturnResult(sqlmock.NewResult(1, 1))
-
 					mock.ExpectExec(regexp.QuoteMeta("DELETE FROM userOrders WHERE orderId=$1")).
+					WithArgs(id).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+
+					mock.ExpectExec(regexp.QuoteMeta("DELETE FROM tasks WHERE id=$1")).
 						WithArgs(id).
 						WillReturnResult(sqlmock.NewResult(1, 1))
 
