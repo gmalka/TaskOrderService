@@ -5,7 +5,7 @@
   ## 💡 About the project:
   	Simple project designed to emulate the interaction of microservices.
     Implemented two services:
-      - UserService allows the user to register or login. Llso it allows view and buy tasks.
+      - UserService allows the user to register or login. Also it allows view and buy tasks.
         provides HTTP api.
       - TaskService provides gRPC and HTTP api for interaction
 
